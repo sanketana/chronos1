@@ -7,8 +7,5 @@
       "src": "package.json",
       "use": "@vercel/next"
     }
-  ],
-  "env": {
-    "NEON_POSTGRES_URL": "@neon_postgres_url"
-  }
+  ]
 } 
