@@ -1,11 +1,5 @@
 {
   "buildCommand": "npm run migrate:deploy",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ]
+  "framework": "nextjs"
 } 
