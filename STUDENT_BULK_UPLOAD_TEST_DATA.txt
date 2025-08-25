@@ -1,5 +1,0 @@
-Alice Johnson	alice.johnson@university.edu	Computer Science
-Bob Smith	bob.smith@university.edu	Mathematics
-Carol Davis	carol.davis@university.edu	Physics
-David Wilson	david.wilson@university.edu	Chemistry
-Eva Brown	eva.brown@university.edu	Biology 

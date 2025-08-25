@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate": "node scripts/migrate.js",
+    "migrate:deploy": "npm run migrate && next build",
+    "test:migration": "node scripts/test-migration.js",
+    "change-password": "node scripts/change-default-password.js"
   },
   "dependencies": {
     "@types/react-select": "^5.0.0",

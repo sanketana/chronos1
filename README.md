@@ -35,15 +35,36 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Database Setup
+
+This application uses PostgreSQL for data storage. The database schema is automatically set up using migration scripts.
+
+### Quick Start with Default Credentials
+
+After deployment, you can log in with the default superadmin account:
+
+- **Email**: `admin@chronos.edu`
+- **Password**: `chronos2024!`
+
+⚠️ **Important**: Change these credentials immediately after your first login!
+
+### Database Migration
+
+The application includes an automated migration system that:
+- Creates all necessary database tables
+- Sets up proper indexes and constraints
+- Creates a default superadmin user
+- Tracks migration execution to prevent re-running
+
+For detailed migration information, see [MIGRATION_README.md](./MIGRATION_README.md).
+
 ## Event Backend Integration
 
 - Events are managed via a RESTful API at `/api/events`.
 - **GET /api/events**: Returns a list of all events (for the admin dashboard).
 - **POST /api/events**: Creates a new event. The request body should include `name`, `date`, `slotLen`, and `status`.
-- Uses [@vercel/postgres](https://vercel.com/docs/storage/vercel-postgres/quickstart) for database access.
+- Uses PostgreSQL for database access with automatic schema management.
 - The dashboard fetches and displays events, and updates the list immediately after a new event is created.
-
-**Note:** Ensure your Vercel Postgres database has an `events` table with columns: `id` (UUID, PK), `name` (text), `date` (date), `slot_len` (integer), `status` (text), `created_at` (timestamp, default now()).
 
 ## Event Status System
 
