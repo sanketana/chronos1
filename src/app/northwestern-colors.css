@@ -1,0 +1,610 @@
+/* Northwestern University Official Color Palette
+   Source: https://www.northwestern.edu/brand/visual-identity/color/index.html
+*/
+:root {
+  /* Primary Colors */
+  --northwestern-purple: #4E2A84; /* Official Purple */
+  --northwestern-black: #000000;   /* Black */
+  --northwestern-white: #FFFFFF;   /* White */
+  --northwestern-gray: #76787B;    /* Gray */
+  --northwestern-silver: #C8C9C7;  /* Silver */
+  /* Accent Colors */
+  --northwestern-light-purple: #B6A6CA; /* Light Purple */
+  --northwestern-dark-purple: #381E5A;  /* Dark Purple */
+  --northwestern-gold: #FFD100;         /* Gold */
+  --northwestern-green: #009B77;        /* Green */
+  --northwestern-blue: #00A3E0;         /* Blue */
+  --northwestern-red: #D0006F;          /* Red */
+}
+
+/* Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --northwestern-background: #1A1A1A;
+    --northwestern-surface: #232323;
+    --northwestern-text: #FFFFFF;
+    --northwestern-border: #4E2A84;
+  }
+}
+
+/* Light Mode Defaults */
+:root {
+  --northwestern-background: #FFFFFF;
+  --northwestern-surface: #F5F5F5;
+  --northwestern-text: #222222;
+  --northwestern-border: #4E2A84;
+}
+
+/* Ensure all elements use border-box for sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* General Layout and Typography */
+body {
+  background: var(--northwestern-background);
+  color: var(--northwestern-text);
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--northwestern-purple);
+  font-weight: 700;
+}
+
+a {
+  color: var(--northwestern-blue);
+  text-decoration: underline;
+}
+
+button {
+  background: var(--northwestern-purple);
+  color: var(--northwestern-white);
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: var(--northwestern-dark-purple);
+}
+
+input, select, textarea {
+  border: 1px solid var(--northwestern-border);
+  border-radius: 4px;
+  padding: 0.5em;
+  font-size: 1em;
+  background: var(--northwestern-surface);
+  color: var(--northwestern-text);
+}
+
+.modal {
+  background: var(--northwestern-surface);
+  border: 2px solid var(--northwestern-purple);
+  border-radius: 8px;
+  padding: 2em;
+  box-shadow: 0 4px 24px rgba(78, 42, 132, 0.15);
+}
+
+/* Layout for centered page */
+.centered-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--northwestern-background);
+  color: var(--northwestern-text);
+}
+
+/* Login form styling */
+.login-form {
+  background: var(--northwestern-surface);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 16px rgba(78, 42, 132, 0.08);
+  width: 100%;
+  max-width: 24rem;
+  border: 1px solid var(--northwestern-gray);
+}
+
+.login-title {
+  color: var(--northwestern-purple);
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.error-message {
+  background: #ffeaea;
+  color: #b00020;
+  border: 1px solid #ffb3b3;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  color: var(--northwestern-text);
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--northwestern-gray);
+  border-radius: 4px;
+  font-size: 1rem;
+  background: var(--northwestern-surface);
+  color: var(--northwestern-text);
+  margin-bottom: 0.25rem;
+}
+
+.primary-btn {
+  background: var(--northwestern-purple);
+  color: var(--northwestern-white);
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.primary-btn:hover {
+  background: var(--northwestern-dark-purple);
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Dashboard page layout */
+.dashboard-page {
+  min-height: 100vh;
+  background: var(--northwestern-background);
+  color: var(--northwestern-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.dashboard-title {
+  color: var(--northwestern-purple);
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.dashboard-welcome {
+  color: var(--northwestern-text);
+  margin-bottom: 2rem;
+}
+
+.dashboard-section-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.event-list-item {
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--northwestern-silver);
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(78, 42, 132, 0.05);
+}
+
+.event-name {
+  font-weight: 600;
+  color: var(--northwestern-purple);
+}
+
+.event-date {
+  font-size: 0.95rem;
+  color: var(--northwestern-gray);
+}
+
+/* Event Modal Button */
+.event-modal-btn {
+  margin-bottom: 2rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  background: var(--northwestern-purple);
+  color: var(--northwestern-white);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.event-modal-btn:hover {
+  background: var(--northwestern-dark-purple);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Modal Title */
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--northwestern-purple);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.secondary-btn {
+  background: var(--northwestern-silver);
+  color: var(--northwestern-text);
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.secondary-btn:hover {
+  background: var(--northwestern-gray);
+}
+
+/* Responsive: Login Form, Modal, Dashboard */
+@media (max-width: 700px) {
+  .login-form {
+    padding: 1.25rem;
+    max-width: 95vw;
+  }
+  .centered-page {
+    padding: 1rem;
+  }
+  .modal {
+    padding: 1.25rem;
+    max-width: 95vw;
+  }
+  .dashboard-page {
+    padding: 1rem;
+  }
+  .dashboard-stats-row {
+    gap: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dashboard-stat-card {
+    padding: 1.25rem 1rem;
+    min-width: 0;
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .login-title, .modal-title, .dashboard-title {
+    font-size: 1.25rem;
+  }
+  .login-form, .modal {
+    padding: 0.75rem;
+    border-radius: 6px;
+  }
+  .form-input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+  }
+  .primary-btn, .secondary-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+  }
+  .dashboard-stat-card {
+    padding: 0.75rem 0.5rem;
+    border-radius: 6px;
+  }
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #4E2A84;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+.tab-btn[aria-selected="true"] {
+  border-bottom: 3px solid #4E2A84;
+  font-weight: bold;
+  background: #f3f0fa;
+}
+.tab-btn[aria-selected="false"]:hover {
+  background: #f3f0fa;
+}
+
+/* Table Styles */
+.table-container {
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.table-wrapper {
+  background: var(--northwestern-surface);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(78, 42, 132, 0.05);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--northwestern-surface);
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--northwestern-silver);
+}
+
+.data-table th {
+  background: var(--northwestern-purple);
+  color: var(--northwestern-white);
+  font-weight: 600;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover {
+  background: var(--northwestern-silver);
+}
+
+.no-data {
+  text-align: center;
+  color: var(--northwestern-gray);
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background: var(--northwestern-purple);
+  color: var(--northwestern-white);
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-btn:hover {
+  background: var(--northwestern-dark-purple);
+}
+
+.delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--northwestern-silver);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--northwestern-purple);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--northwestern-gray);
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--northwestern-text);
+}
+
+/* Modal Form */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Upload Instructions */
+.upload-instructions {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--northwestern-silver);
+  border-radius: 4px;
+}
+
+.upload-instructions p {
+  margin-bottom: 0.5rem;
+}
+
+.upload-instructions ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.upload-instructions li {
+  margin-bottom: 0.25rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--northwestern-purple);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0;
+  margin-top: 0.5rem;
+}
+
+.link-btn:hover {
+  color: var(--northwestern-dark-purple);
+}
+
+/* Upload Result */
+.upload-result {
+  text-align: center;
+}
+
+.upload-result h3 {
+  color: var(--northwestern-purple);
+  margin-bottom: 1rem;
+}
+
+.result-summary {
+  margin-bottom: 1.5rem;
+}
+
+.result-summary p {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.error-list {
+  text-align: left;
+  margin-top: 1rem;
+}
+
+.error-list h4 {
+  color: #dc2626;
+  margin-bottom: 0.5rem;
+}
+
+.error-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.error-item {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+/* Form Select */
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--northwestern-gray);
+  border-radius: 4px;
+  font-size: 1rem;
+  background: var(--northwestern-surface);
+  color: var(--northwestern-text);
+  cursor: pointer;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--northwestern-purple);
+  box-shadow: 0 0 0 2px rgba(78, 42, 132, 0.1);
+} 
