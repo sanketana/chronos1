@@ -26,7 +26,7 @@ async function getEventsWithAuth() {
             ssl: { rejectUnauthorized: false }
         });
         await client.connect();
-        const result = await client.query<Event>('SELECT * FROM events ORDER BY created_at DESC');
+        const result = await client.query<Event>('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots, created_at FROM events ORDER BY created_at DESC');
         events = result.rows;
         await client.end();
     } catch (err: unknown) {

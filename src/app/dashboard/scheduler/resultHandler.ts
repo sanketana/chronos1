@@ -8,7 +8,7 @@ export async function saveMeetings(meetings: ScheduledMeeting[], runId: number) 
     const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
     await client.connect();
     // Fetch event date for this eventId - cast to text to avoid timezone issues
-    const eventRes = await client.query('SELECT date::text as date FROM events WHERE id = $1', [eventId]);
+    const eventRes = await client.query('SELECT to_char(date, \'YYYY-MM-DD\') as date FROM events WHERE id = $1', [eventId]);
     if (!eventRes.rows.length) throw new Error('Event not found');
     const eventDate = eventRes.rows[0].date; // e.g., '2024-07-10'
     

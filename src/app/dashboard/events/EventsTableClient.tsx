@@ -97,12 +97,19 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                     <tbody>
                         {events.map((event: Event) => {
                             let dateStr = '';
-                            // Format date for display
+                            // Format date for display - handle YYYY-MM-DD format directly
                             try {
-                                const dateObj = new Date(event.date ?? '');
-                                dateStr = isNaN(dateObj.getTime())
-                                    ? String(event.date)
-                                    : dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+                                if (event.date && typeof event.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(event.date)) {
+                                    // Parse YYYY-MM-DD format directly to avoid timezone issues
+                                    const [year, month, day] = event.date.split('-').map(Number);
+                                    const dateObj = new Date(year, month - 1, day); // month is 0-indexed
+                                    dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+                                } else {
+                                    const dateObj = new Date(event.date ?? '');
+                                    dateStr = isNaN(dateObj.getTime())
+                                        ? String(event.date)
+                                        : dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+                                }
                             } catch {
                                 dateStr = String(event.date);
                             }
@@ -110,15 +117,20 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                             // Format date for edit (YYYY-MM-DD format for HTML date input)
                             let dateForEdit = '';
                             try {
-                                const dateObj = new Date(event.date ?? '');
-                                if (!isNaN(dateObj.getTime())) {
-                                    // Use local date methods to avoid timezone issues
-                                    const year = dateObj.getFullYear();
-                                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                                    const day = String(dateObj.getDate()).padStart(2, '0');
-                                    dateForEdit = `${year}-${month}-${day}`;
+                                if (event.date && typeof event.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(event.date)) {
+                                    // Already in YYYY-MM-DD format
+                                    dateForEdit = event.date;
                                 } else {
-                                    dateForEdit = event.date || '';
+                                    const dateObj = new Date(event.date ?? '');
+                                    if (!isNaN(dateObj.getTime())) {
+                                        // Use local date methods to avoid timezone issues
+                                        const year = dateObj.getFullYear();
+                                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                        const day = String(dateObj.getDate()).padStart(2, '0');
+                                        dateForEdit = `${year}-${month}-${day}`;
+                                    } else {
+                                        dateForEdit = event.date || '';
+                                    }
                                 }
                             } catch {
                                 dateForEdit = event.date || '';

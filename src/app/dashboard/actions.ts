@@ -70,7 +70,7 @@ export async function updateEvent(formData: FormData) {
 export async function getAllEvents() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
-  const result = await client.query('SELECT id, name, date::text as date, slot_len, status, start_time, end_time, available_slots FROM events ORDER BY date DESC');
+  const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events ORDER BY date DESC');
   await client.end();
   return result.rows;
 }
@@ -78,7 +78,7 @@ export async function getAllEvents() {
 export async function getEventsForInputCollection() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
-  const result = await client.query('SELECT id, name, date::text as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['COLLECTING_AVAIL']);
+  const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['COLLECTING_AVAIL']);
   await client.end();
   return result.rows;
 }
@@ -86,7 +86,7 @@ export async function getEventsForInputCollection() {
 export async function getEventsByStatus(status: string) {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
-  const result = await client.query('SELECT id, name, date::text as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', [status]);
+  const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', [status]);
   await client.end();
   return result.rows;
 }
@@ -94,7 +94,7 @@ export async function getEventsByStatus(status: string) {
 export async function getEventsForScheduling() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
-  const result = await client.query('SELECT id, name, date::text as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['SCHEDULING']);
+  const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['SCHEDULING']);
   await client.end();
   return result.rows;
 }
@@ -102,7 +102,7 @@ export async function getEventsForScheduling() {
 export async function getEventsForMeetings() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
-  const result = await client.query('SELECT id, name, date::text as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['PUBLISHED']);
+  const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['PUBLISHED']);
   await client.end();
   return result.rows;
 } 

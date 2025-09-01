@@ -25,7 +25,7 @@ async function getStudentData(user: unknown) {
         const studentRes = await client.query('SELECT * FROM users WHERE id = $1', [(user as { userId: string }).userId]);
         students = studentRes.rows;
         const prefRes = await client.query(`
-            SELECT p.*, u.name as student_name, u.email as student_email, e.name as event_name, e.date::text as event_date
+            SELECT p.*, u.name as student_name, u.email as student_email, e.name as event_name, to_char(e.date, 'YYYY-MM-DD') as event_date
             FROM preferences p
             LEFT JOIN users u ON p.student_id = u.id
             LEFT JOIN events e ON p.event_id = e.id
@@ -37,7 +37,7 @@ async function getStudentData(user: unknown) {
         const studentRes = await client.query('SELECT * FROM users WHERE role = $1', ['student']);
         students = studentRes.rows;
         const prefRes = await client.query(`
-            SELECT p.*, u.name as student_name, u.email as student_email, e.name as event_name, e.date::text as event_date
+            SELECT p.*, u.name as student_name, u.email as student_email, e.name as event_name, to_char(e.date, 'YYYY-MM-DD') as event_date
             FROM preferences p
             LEFT JOIN users u ON p.student_id = u.id
             LEFT JOIN events e ON p.event_id = e.id

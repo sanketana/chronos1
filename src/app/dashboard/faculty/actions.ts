@@ -74,7 +74,7 @@ export async function getAllAvailabilities() {
     });
     await client.connect();
     const result = await client.query(`
-        SELECT a.id, a.faculty_id, u.name as faculty_name, u.email as faculty_email, u.department as faculty_department, a.event_id, e.name as event_name, COALESCE(e.date::text, '') as event_date, e.start_time, e.end_time, e.slot_len, a.available_slots, a.preferences, a.updated_at
+        SELECT a.id, a.faculty_id, u.name as faculty_name, u.email as faculty_email, u.department as faculty_department, a.event_id, e.name as event_name, COALESCE(to_char(e.date, 'YYYY-MM-DD'), '') as event_date, e.start_time, e.end_time, e.slot_len, a.available_slots, a.preferences, a.updated_at
         FROM availabilities a
         JOIN users u ON a.faculty_id = u.id
         JOIN events e ON a.event_id = e.id
