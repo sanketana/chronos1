@@ -14,6 +14,7 @@ interface EventModalProps {
         start_time?: string;
         end_time?: string;
         available_slots?: string;
+        minPreferences?: number;
     };
     submitLabel?: string;
 }
@@ -102,6 +103,19 @@ export default function EventModal({ isOpen, onClose, onSubmit, initialValues, s
                             title="Format: 09:00 - 13:00, 15:00 - 17:00. Only valid 24-hour times allowed."
                             defaultValue={initialValues?.available_slots || '09:00 - 13:00, 15:00 - 17:00'}
                             placeholder="09:00 - 13:00, 15:00 - 17:00"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="minPreferences" className="form-label">Minimum Student Preferences</label>
+                        <input
+                            id="minPreferences"
+                            name="minPreferences"
+                            type="number"
+                            min={1}
+                            max={5}
+                            defaultValue={initialValues?.minPreferences || 1}
+                            className="form-input"
+                            title="Minimum number of professors students must select for this event"
                         />
                     </div>
                     <div className="form-group">

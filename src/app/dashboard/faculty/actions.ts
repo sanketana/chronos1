@@ -80,8 +80,26 @@ export async function getAllAvailabilities() {
         JOIN events e ON a.event_id = e.id
         ORDER BY a.updated_at DESC
     `);
+    
+    // Process the available_slots to handle both old and new JSON formats
+    const processedRows = result.rows.map(row => {
+        if (row.available_slots) {
+            try {
+                const parsed = JSON.parse(row.available_slots);
+                if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+                    // New format: extract just the slots
+                    row.available_slots = parsed.slots;
+                }
+                // If parsing fails or it's the old format, keep as is
+            } catch {
+                // Keep the original format if parsing fails
+            }
+        }
+        return row;
+    });
+    
     await client.end();
-    return result.rows;
+    return processedRows;
 }
 
 export async function getAllAvailabilitiesForFaculty(facultyId: string) {

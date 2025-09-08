@@ -49,20 +49,59 @@ export async function deleteStudent(id: string) {
 }
 
 export async function upsertPreference({ studentId, eventId, professorIds, preferences, unavailableSlots }: { studentId: string; eventId: string; professorIds: string[]; preferences: string; unavailableSlots: string[] }) {
-    if (!studentId || !eventId || !professorIds || professorIds.length < 3 || professorIds.length > 5) throw new Error('Must select 3-5 professors');
+    if (!studentId || !eventId || !professorIds) throw new Error('Missing required fields');
+    
+    // Get the event to check minPreferences
     const client = new Client({
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
     await client.connect();
-    await client.query(
-        `INSERT INTO preferences (student_id, event_id, professor_ids, preferences, available_slots, updated_at)
-         VALUES ($1, $2, $3, $4, $5, NOW())
-         ON CONFLICT (student_id, event_id)
-         DO UPDATE SET professor_ids = $3, preferences = $4, available_slots = $5, updated_at = NOW()`,
-        [studentId, eventId, JSON.stringify(professorIds), preferences, unavailableSlots]
-    );
-    await client.end();
+    
+    try {
+        // Get event details to check minPreferences
+        const eventResult = await client.query('SELECT available_slots FROM events WHERE id = $1', [eventId]);
+        if (eventResult.rows.length === 0) {
+            throw new Error('Event not found');
+        }
+        
+        const event = eventResult.rows[0];
+        let minPreferences = 1; // default
+        
+        try {
+            if (event.available_slots) {
+                const parsed = JSON.parse(event.available_slots);
+                if (parsed && typeof parsed === 'object' && typeof parsed.minPreferences === 'number') {
+                    minPreferences = parsed.minPreferences;
+                }
+            }
+        } catch {
+            // If parsing fails, use default minPreferences = 1
+        }
+        
+        // Validate based on event's minPreferences
+        if (professorIds.length < minPreferences) {
+            throw new Error(`Must select at least ${minPreferences} professor${minPreferences > 1 ? 's' : ''}`);
+        }
+        if (professorIds.length > 5) {
+            throw new Error('Cannot select more than 5 professors');
+        }
+        
+        // Check for duplicates
+        if (new Set(professorIds).size !== professorIds.length) {
+            throw new Error('No duplicate professors allowed');
+        }
+        
+        await client.query(
+            `INSERT INTO preferences (student_id, event_id, professor_ids, preferences, available_slots, updated_at)
+             VALUES ($1, $2, $3, $4, $5, NOW())
+             ON CONFLICT (student_id, event_id)
+             DO UPDATE SET professor_ids = $3, preferences = $4, available_slots = $5, updated_at = NOW()`,
+            [studentId, eventId, JSON.stringify(professorIds), preferences, unavailableSlots]
+        );
+    } finally {
+        await client.end();
+    }
 }
 
 export async function getAllPreferences() {
@@ -78,8 +117,26 @@ export async function getAllPreferences() {
         JOIN events e ON p.event_id = e.id
         ORDER BY p.updated_at DESC
     `);
+    
+    // Process the available_slots to handle both old and new JSON formats
+    const processedRows = result.rows.map(row => {
+        if (row.available_slots) {
+            try {
+                const parsed = JSON.parse(row.available_slots);
+                if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+                    // New format: extract just the slots
+                    row.available_slots = parsed.slots;
+                }
+                // If parsing fails or it's the old format, keep as is
+            } catch {
+                // Keep the original format if parsing fails
+            }
+        }
+        return row;
+    });
+    
     await client.end();
-    return result.rows;
+    return processedRows;
 }
 
 export async function bulkUploadStudent(records: { name: string; email: string; department: string }[]) {

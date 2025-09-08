@@ -10,6 +10,7 @@ export async function createEvent(formData: FormData) {
   const startTime = formData.get('start_time') as string; // time string
   const endTime = formData.get('end_time') as string; // time string
   const availableSlots = formData.get('available_slots') as string;
+  const minPreferences = Number(formData.get('minPreferences')) || 1;
   // Pattern: 09:00 - 13:00, 15:00 - 17:00
   const slotPattern = /^([01]\d|2[0-3]):[0-5]\d\s*-\s*([01]\d|2[0-3]):[0-5]\d(,\s*([01]\d|2[0-3]):[0-5]\d\s*-\s*([01]\d|2[0-3]):[0-5]\d)*$/;
   if (!name || !date || !slotLen || !status || !startTime || !endTime || !availableSlots) {
@@ -18,8 +19,12 @@ export async function createEvent(formData: FormData) {
   if (!slotPattern.test(availableSlots)) {
     throw new Error('Available slots format is invalid. Use HH:MM - HH:MM, ...');
   }
-  // Convert availableSlots to JSON array
-  const availableSlotsJson = JSON.stringify(availableSlots.split(',').map(s => s.replace(/\s+/g, '')));
+  // Convert availableSlots to JSON array with metadata
+  const slotsArray = availableSlots.split(',').map(s => s.replace(/\s+/g, ''));
+  const availableSlotsJson = JSON.stringify({
+    slots: slotsArray,
+    minPreferences: minPreferences
+  });
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   await client.query(
@@ -48,6 +53,7 @@ export async function updateEvent(formData: FormData) {
   const startTime = formData.get('start_time') as string; // time string
   const endTime = formData.get('end_time') as string; // time string
   const availableSlots = formData.get('available_slots') as string;
+  const minPreferences = Number(formData.get('minPreferences')) || 1;
   const slotPattern = /^([01]\d|2[0-3]):[0-5]\d\s*-\s*([01]\d|2[0-3]):[0-5]\d(,\s*([01]\d|2[0-3]):[0-5]\d\s*-\s*([01]\d|2[0-3]):[0-5]\d)*$/;
   if (!id || !name || !date || !slotLen || !status || !startTime || !endTime || !availableSlots) {
     throw new Error('Missing required fields');
@@ -55,8 +61,12 @@ export async function updateEvent(formData: FormData) {
   if (!slotPattern.test(availableSlots)) {
     throw new Error('Available slots format is invalid. Use HH:MM - HH:MM, ...');
   }
-  // Convert availableSlots to JSON array
-  const availableSlotsJson = JSON.stringify(availableSlots.split(',').map(s => s.replace(/\s+/g, '')));
+  // Convert availableSlots to JSON array with metadata
+  const slotsArray = availableSlots.split(',').map(s => s.replace(/\s+/g, ''));
+  const availableSlotsJson = JSON.stringify({
+    slots: slotsArray,
+    minPreferences: minPreferences
+  });
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   await client.query(
@@ -64,45 +74,135 @@ export async function updateEvent(formData: FormData) {
     [name, date, slotLen, status, startTime, endTime, availableSlotsJson, id]
   );
   await client.end();
-  revalidatePath('/dashboard/events');
+  revalidatePath('/dashboard');
 }
 
 export async function getAllEvents() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events ORDER BY date DESC');
+  
+  // Process the available_slots to handle both old and new JSON formats
+  const processedRows = result.rows.map(row => {
+    if (row.available_slots) {
+      try {
+        const parsed = JSON.parse(row.available_slots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+          // New format: extract just the slots for backward compatibility
+          row.available_slots = parsed.slots;
+        }
+        // If parsing fails or it's the old format, keep as is
+      } catch {
+        // Keep the original format if parsing fails
+      }
+    }
+    return row;
+  });
+  
   await client.end();
-  return result.rows;
+  return processedRows;
 }
 
 export async function getEventsForInputCollection() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['COLLECTING_AVAIL']);
+  
+  // Process the available_slots to handle both old and new JSON formats
+  const processedRows = result.rows.map(row => {
+    if (row.available_slots) {
+      try {
+        const parsed = JSON.parse(row.available_slots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+          // New format: extract just the slots for backward compatibility
+          row.available_slots = parsed.slots;
+        }
+        // If parsing fails or it's the old format, keep as is
+      } catch {
+        // Keep the original format if parsing fails
+      }
+    }
+    return row;
+  });
+  
   await client.end();
-  return result.rows;
+  return processedRows;
 }
 
 export async function getEventsByStatus(status: string) {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', [status]);
+  
+  // Process the available_slots to handle both old and new JSON formats
+  const processedRows = result.rows.map(row => {
+    if (row.available_slots) {
+      try {
+        const parsed = JSON.parse(row.available_slots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+          // New format: extract just the slots for backward compatibility
+          row.available_slots = parsed.slots;
+        }
+        // If parsing fails or it's the old format, keep as is
+      } catch {
+        // Keep the original format if parsing fails
+      }
+    }
+    return row;
+  });
+  
   await client.end();
-  return result.rows;
+  return processedRows;
 }
 
 export async function getEventsForScheduling() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['SCHEDULING']);
+  
+  // Process the available_slots to handle both old and new JSON formats
+  const processedRows = result.rows.map(row => {
+    if (row.available_slots) {
+      try {
+        const parsed = JSON.parse(row.available_slots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+          // New format: extract just the slots for backward compatibility
+          row.available_slots = parsed.slots;
+        }
+        // If parsing fails or it's the old format, keep as is
+      } catch {
+        // Keep the original format if parsing fails
+      }
+    }
+    return row;
+  });
+  
   await client.end();
-  return result.rows;
+  return processedRows;
 }
 
 export async function getEventsForMeetings() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['PUBLISHED']);
+  
+  // Process the available_slots to handle both old and new JSON formats
+  const processedRows = result.rows.map(row => {
+    if (row.available_slots) {
+      try {
+        const parsed = JSON.parse(row.available_slots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+          // New format: extract just the slots for backward compatibility
+          row.available_slots = parsed.slots;
+        }
+        // If parsing fails or it's the old format, keep as is
+      } catch {
+        // Keep the original format if parsing fails
+      }
+    }
+    return row;
+  });
+  
   await client.end();
-  return result.rows;
+  return processedRows;
 } 

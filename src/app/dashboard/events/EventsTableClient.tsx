@@ -16,6 +16,36 @@ interface Event {
     start_time?: string;
     end_time?: string;
     available_slots?: string;
+    minPreferences?: number;
+}
+
+// Helper function to extract minPreferences from available_slots JSON
+function extractMinPreferences(availableSlots: string | undefined): number {
+    if (!availableSlots) return 1;
+    try {
+        const parsed = JSON.parse(availableSlots);
+        if (parsed && typeof parsed === 'object' && typeof parsed.minPreferences === 'number') {
+            return parsed.minPreferences;
+        }
+    } catch {
+        // If parsing fails, assume it's the old format and default to 1
+    }
+    return 1;
+}
+
+// Helper function to extract slots from available_slots JSON
+function extractSlots(availableSlots: string | undefined): string[] {
+    if (!availableSlots) return [];
+    try {
+        const parsed = JSON.parse(availableSlots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+            return parsed.slots;
+        }
+    } catch {
+        // If parsing fails, assume it's the old format
+        return availableSlots.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return [];
 }
 
 // Add a helper function to format time to AM/PM
@@ -136,16 +166,26 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                                 dateForEdit = event.date || '';
                             }
                             
+                            // Extract slots and minPreferences for display and editing
+                            const slots = extractSlots(event.available_slots);
+                            const minPrefs = extractMinPreferences(event.available_slots);
+                            const slotsForEdit = slots.join(', ');
+                            
                             return (
                                 <tr key={event.id}>
                                     <td>{event.name}</td>
                                     <td>{dateStr}</td>
                                     <td>{formatTimeAMPM(event.start_time)} - {formatTimeAMPM(event.end_time)}</td>
-                                    <td>{Array.isArray(event.available_slots) ? event.available_slots.join(', ') : (event.available_slots || '')}</td>
+                                    <td>{slots.join(', ')}</td>
                                     <td>{event.slot_len} min</td>
                                     <td>{event.status}</td>
                                     <td>
-                                        <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => setEditEvent({ ...event, date: dateForEdit })}>Edit</button>
+                                        <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => setEditEvent({ 
+                                            ...event, 
+                                            date: dateForEdit, 
+                                            available_slots: slotsForEdit,
+                                            minPreferences: minPrefs
+                                        })}>Edit</button>
                                         <DeleteEventButton eventId={event.id} />
                                     </td>
                                 </tr>

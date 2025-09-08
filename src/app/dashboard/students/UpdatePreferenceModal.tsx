@@ -26,6 +26,7 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
     const [showErrorPopup, setShowErrorPopup] = useState(false);
     const errorPopupRef = useRef<HTMLDivElement>(null);
     const selectAllRef = useRef<HTMLInputElement>(null);
+    const [minPreferences, setMinPreferences] = useState(1);
 
     useEffect(() => {
         async function fetchData() {
@@ -93,26 +94,37 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
         const ev = events.find(e => e.id === eventId);
         if (ev && ev.slot_len) {
             let ranges: string[] = [];
+            let minPrefs = 1; // default
+            
             if (ev.available_slots && ev.available_slots.length > 0) {
-                if (Array.isArray(ev.available_slots)) {
-                    ranges = ev.available_slots;
-                } else if (typeof ev.available_slots === 'string') {
-                    try {
-                        ranges = JSON.parse(ev.available_slots);
-                        if (!Array.isArray(ranges)) {
-                            ranges = ev.available_slots.split(',').map((s: string) => s.trim()).filter(Boolean);
+                try {
+                    const parsed = JSON.parse(ev.available_slots);
+                    if (parsed && typeof parsed === 'object') {
+                        if (Array.isArray(parsed.slots)) {
+                            ranges = parsed.slots;
                         }
-                    } catch {
+                        if (typeof parsed.minPreferences === 'number') {
+                            minPrefs = parsed.minPreferences;
+                        }
+                    }
+                } catch {
+                    // If parsing fails, assume it's the old format
+                    if (Array.isArray(ev.available_slots)) {
+                        ranges = ev.available_slots;
+                    } else if (typeof ev.available_slots === 'string') {
                         ranges = ev.available_slots.split(',').map((s: string) => s.trim()).filter(Boolean);
                     }
                 }
             }
+            
+            setMinPreferences(minPrefs);
             const slotsFromEvent = getSlotsFromRanges(ranges, ev.slot_len);
             setAllSlots(slotsFromEvent);
             setAvailableSlots(slotsFromEvent); // select all by default
         } else {
             setAllSlots([]);
             setAvailableSlots([]);
+            setMinPreferences(1);
         }
     }, [eventId, events]);
 
@@ -141,8 +153,8 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
         e.preventDefault();
         setError(null);
         const selected = professorChoices.filter(Boolean) as string[];
-        if (selected.length < 3) {
-            setError("Please select at least 3 unique professors.");
+        if (selected.length < minPreferences) {
+            setError(`Please select at least ${minPreferences} unique professors.`);
             setShowErrorPopup(true);
             setTab('preferences');
             return;

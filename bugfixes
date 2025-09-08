@@ -1,0 +1,58 @@
+### *1. Date & Timing Issues*
+
+* *Monday default bug*: When choosing Monday, the system sets the date to the day before. Needs fixing.
+* *Meeting times off (4AM/5AM bug)*: Scheduler results sometimes show early morning times that were not chosen (e.g., 9–2 showing up as 4AM slots).
+* *Time mismatch*: Faculty vs. student views show different times for the same event. Needs consistency.
+
+---
+
+### *2. Labels & Terminology*
+
+* The term *“Secondary group”* (students) may not work since it could also include *faculty, guest speakers, or staff*. She asked for a more inclusive label (suggestions: “attendees”).
+* Needs *clearer definitions of status labels* (“Collecting availability,” “Scheduling,” “Published”)—what they mean, when schedules lock, whether edits are allowed, and if participants get notified.
+
+---
+
+### *3. Permissions & Visibility*
+
+* Faculty should *only see events they are assigned to*, not all events (e.g., avoid confusion like seeing “barbecue” events unrelated to them).
+* Asked about whether faculty-side privacy/security controls could be improved.
+
+---
+
+### *4. Scheduling Behavior*
+
+* Clarify if the scheduler can be *run multiple times* for the same event, and what happens when availability/status changes.
+* Define whether schedules “lock” after publishing or if admins can revert to “collecting availability.”
+
+---
+
+### *5. Notifications*
+
+* Asked if *participants automatically receive notifications* when schedules are published, or if admins must manually email them.
+
+---
+
+### *6. Student Preferences*
+
+* Currently, students must enter *multiple preferences (2–5)*.
+* She suggested making *Preference 2–4 optional*, since not all events require multiple choices.
+* Ideally, this should be *configurable per event by admins* (some events may need all five, others only one).
+
+---
+
+### *7. General Feedback*
+
+* She and her colleague found the tool *impressive, simple, and useful, but emphasized the need for **clarity and definitions* to avoid confusion for staff and faculty.
+
+---
+
+✅ *Your action items*:
+
+* Fix *date/time bugs*.
+* Update *terminology & status definitions*.
+* Restrict *faculty event visibility*.
+* Clarify/implement *locking, reruns, and notifications*.
+* Make *preferences configurable per event*.
+
+---

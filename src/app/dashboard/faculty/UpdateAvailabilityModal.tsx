@@ -68,7 +68,6 @@ export default function UpdateAvailabilityModal({ isOpen, onClose, faculty, onSu
     const [allSlots, setAllSlots] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [facultyAvailabilities, setFacultyAvailabilities] = useState<Record<string, string[]>>({});
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const selectAllRef = useRef<HTMLInputElement>(null);
 
@@ -90,7 +89,7 @@ export default function UpdateAvailabilityModal({ isOpen, onClose, faculty, onSu
                 for (const row of allAvail) {
                     availMap[row.event_id] = Array.isArray(row.unavailable_slots) ? row.unavailable_slots : [];
                 }
-                setFacultyAvailabilities(availMap);
+                // setFacultyAvailabilities(availMap); // This line is removed
             }
         }
         fetchAvailabilities();
@@ -105,10 +104,15 @@ export default function UpdateAvailabilityModal({ isOpen, onClose, faculty, onSu
             setEndTime(ev.end_time ?? "");
             let slotsFromEvent: string[] = [];
             if (ev.available_slots && ev.available_slots.length > 0) {
-                let ranges: string[];
+                let ranges: string[] = [];
                 if (typeof ev.available_slots === 'string') {
                     try {
-                        ranges = JSON.parse(ev.available_slots);
+                        const parsed = JSON.parse(ev.available_slots);
+                        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+                            ranges = parsed.slots;
+                        } else {
+                            ranges = [];
+                        }
                     } catch {
                         ranges = [];
                     }
@@ -122,7 +126,7 @@ export default function UpdateAvailabilityModal({ isOpen, onClose, faculty, onSu
             setAllSlots(slotsFromEvent);
             setAvailableSlots(slotsFromEvent); // select all by default
         }
-    }, [eventId, facultyAvailabilities, events, slotLen]);
+    }, [eventId, events, slotLen]);
 
     useEffect(() => {
         if (selectAllRef.current) {

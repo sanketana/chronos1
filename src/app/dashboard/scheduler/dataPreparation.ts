@@ -34,7 +34,6 @@ export async function prepareMatchingInput(eventId: string): Promise<MatchingInp
     ]);
     const event = events.find(e => e.id === eventId);
     if (!event) throw new Error('Event not found');
-    const slots = generateSlots(event.start_time, event.end_time, event.slot_len);
 
     // Professors
     const professors = availabilities
@@ -67,9 +66,28 @@ export async function prepareMatchingInput(eventId: string): Promise<MatchingInp
             };
         });
 
+    // Extract slots from event's available_slots JSON
+    let eventSlots: string[] = [];
+    if (event.available_slots) {
+        try {
+            const parsed = JSON.parse(event.available_slots);
+            if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+                eventSlots = parsed.slots;
+            }
+        } catch {
+            // If parsing fails, assume it's the old format
+            eventSlots = typeof event.available_slots === 'string' ? JSON.parse(event.available_slots) : event.available_slots;
+        }
+    }
+    
+    // If we couldn't extract slots from the new format, fall back to generating them
+    if (eventSlots.length === 0) {
+        eventSlots = generateSlots(event.start_time, event.end_time, event.slot_len);
+    }
+
     return {
         eventId,
-        slots,
+        slots: eventSlots,
         professors,
         students,
     };
