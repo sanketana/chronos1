@@ -15,90 +15,37 @@ interface Event {
     created_at: string;
     start_time?: string;
     end_time?: string;
-    available_slots?: unknown;
+    available_slots?: string;
     minPreferences?: number;
 }
 
 // Helper function to extract minPreferences from available_slots JSON
-function extractMinPreferences(availableSlots: unknown): number {
+function extractMinPreferences(availableSlots: string | undefined): number {
     if (!availableSlots) return 1;
     try {
-        if (typeof availableSlots === 'string') {
-            const parsed = JSON.parse(availableSlots);
-            if (parsed && typeof parsed === 'object' && typeof (parsed as { minPreferences?: unknown }).minPreferences === 'number') {
-                return (parsed as { minPreferences: number }).minPreferences;
-            }
-        } else if (typeof availableSlots === 'object' && availableSlots !== null) {
-            const maybe = availableSlots as { minPreferences?: unknown };
-            if (typeof maybe.minPreferences === 'number') return maybe.minPreferences;
+        const parsed = JSON.parse(availableSlots);
+        if (parsed && typeof parsed === 'object' && typeof parsed.minPreferences === 'number') {
+            return parsed.minPreferences;
         }
     } catch {
-        // ignore and use default
+        // If parsing fails, assume it's the old format and default to 1
     }
     return 1;
 }
 
-// Helper function to extract slots from available_slots in any supported shape
-function extractSlots(availableSlots: unknown): string[] {
+// Helper function to extract slots from available_slots JSON
+function extractSlots(availableSlots: string | undefined): string[] {
     if (!availableSlots) return [];
-
-    // Already an array (from server normalization)
-    if (Array.isArray(availableSlots)) {
-        return availableSlots.map(v => String(v).trim()).filter(Boolean);
-    }
-
-    // Object with slots property
-    if (typeof availableSlots === 'object' && availableSlots !== null) {
-        const maybe = availableSlots as { slots?: unknown };
-        if (Array.isArray(maybe.slots)) {
-            return maybe.slots.map(v => String(v).trim()).filter(Boolean);
+    try {
+        const parsed = JSON.parse(availableSlots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+            return parsed.slots;
         }
+    } catch {
+        // If parsing fails, assume it's the old format
+        return availableSlots.split(',').map(s => s.trim()).filter(Boolean);
     }
-
-    // String forms: JSON object, JSON array, or comma-separated string
-    if (typeof availableSlots === 'string') {
-        const str = availableSlots.trim();
-        if (str.startsWith('{') || str.startsWith('[')) {
-            try {
-                const parsed = JSON.parse(str);
-                if (Array.isArray(parsed)) {
-                    return parsed.map(v => String(v).trim()).filter(Boolean);
-                }
-                if (parsed && typeof parsed === 'object' && Array.isArray((parsed as { slots?: unknown[] }).slots)) {
-                    return ((parsed as { slots: unknown[] }).slots).map(v => String(v).trim()).filter(Boolean);
-                }
-            } catch {
-                // fall through to comma-splitting
-            }
-        }
-        return str.split(',').map(s => s.trim()).filter(Boolean);
-    }
-
     return [];
-}
-
-// Helper: format sessions to a comma-separated string regardless of input shape
-function formatSessionsDisplay(availableSlots: unknown): string {
-    const slots = extractSlots(availableSlots);
-    if (slots.length > 0) return slots.join(', ');
-
-    if (typeof availableSlots === 'string') {
-        const str = availableSlots.trim();
-        if (str.startsWith('{') || str.startsWith('[')) {
-            try {
-                const parsed = JSON.parse(str);
-                if (Array.isArray(parsed)) return parsed.join(', ');
-                if (parsed && typeof parsed === 'object' && Array.isArray((parsed as { slots?: unknown[] }).slots)) {
-                    return ((parsed as { slots: unknown[] }).slots).map(v => String(v)).join(', ');
-                }
-            } catch {
-                // fall through
-            }
-        }
-        return str;
-    }
-
-    return '';
 }
 
 // Add a helper function to format time to AM/PM
@@ -114,17 +61,7 @@ function formatTimeAMPM(timeStr?: string) {
 }
 
 export default function EventsTableClient({ events }: { events: Event[] }) {
-    const [editEvent, setEditEvent] = React.useState<{
-        id?: string;
-        name: string;
-        date: string;
-        slot_len: number;
-        status: string;
-        start_time?: string;
-        end_time?: string;
-        available_slots?: string;
-        minPreferences?: number;
-    } | null>(null);
+    const [editEvent, setEditEvent] = React.useState<Event | null>(null);
     const router = useRouter();
 
     async function handleEditSubmit(formData: FormData) {
@@ -233,14 +170,13 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                             const slots = extractSlots(event.available_slots);
                             const minPrefs = extractMinPreferences(event.available_slots);
                             const slotsForEdit = slots.join(', ');
-                            const sessionsDisplay = formatSessionsDisplay(event.available_slots);
                             
                             return (
                                 <tr key={event.id}>
                                     <td>{event.name}</td>
                                     <td>{dateStr}</td>
                                     <td>{formatTimeAMPM(event.start_time)} - {formatTimeAMPM(event.end_time)}</td>
-                                    <td>{sessionsDisplay}</td>
+                                    <td>{slots.join(', ')}</td>
                                     <td>{event.slot_len} min</td>
                                     <td>{event.status}</td>
                                     <td>

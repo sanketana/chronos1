@@ -1,0 +1,16 @@
+﻿// Helper function to extract slots from available_slots JSON
+function extractSlots(availableSlots: string | undefined): string[] {
+    if (!availableSlots) return [];
+    try {
+        const parsed = JSON.parse(availableSlots);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+            return parsed.slots;
+        }
+    } catch {
+        // If parsing fails, assume it's the old format
+        if (typeof availableSlots === 'string') {
+            return availableSlots.split(',').map(s => s.trim()).filter(Boolean);
+        }
+    }
+    return [];
+}

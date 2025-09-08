@@ -1,0 +1,22 @@
+﻿// Helper function to extract slots from available_slots JSON
+function extractSlots(availableSlots: string | undefined): string[] {
+    if (!availableSlots) return [];
+    try {
+        const parsed = JSON.parse(availableSlots);
+        if (parsed && typeof parsed === "object") {
+            if (Array.isArray(parsed.slots)) {
+                // New format: {"slots": ["09:00-13:00", "15:00-17:00"], "minPreferences": 1}
+                return parsed.slots;
+            } else if (Array.isArray(parsed)) {
+                // Old format: ["09:00-13:00", "15:00-17:00"]
+                return parsed;
+            }
+        }
+    } catch {
+        // If parsing fails, assume it is a comma-separated string
+        if (typeof availableSlots === "string") {
+            return availableSlots.split(",").map(s => s.trim()).filter(Boolean);
+        }
+    }
+    return [];
+}
