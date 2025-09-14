@@ -95,28 +95,30 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
         if (ev && ev.slot_len) {
             let ranges: string[] = [];
             let minPrefs = 1; // default
-            
+
             if (ev.available_slots && ev.available_slots.length > 0) {
-                try {
-                    const parsed = JSON.parse(ev.available_slots);
-                    if (parsed && typeof parsed === 'object') {
-                        if (Array.isArray(parsed.slots)) {
-                            ranges = parsed.slots;
+                // Handle both string (JSON) and array formats
+                if (typeof ev.available_slots === 'string') {
+                    try {
+                        const parsed = JSON.parse(ev.available_slots);
+                        if (parsed && typeof parsed === 'object') {
+                            if (Array.isArray(parsed.slots)) {
+                                ranges = parsed.slots;
+                            }
+                            if (typeof parsed.minPreferences === 'number') {
+                                minPrefs = parsed.minPreferences;
+                            }
                         }
-                        if (typeof parsed.minPreferences === 'number') {
-                            minPrefs = parsed.minPreferences;
-                        }
-                    }
-                } catch {
-                    // If parsing fails, assume it's the old format
-                    if (Array.isArray(ev.available_slots)) {
-                        ranges = ev.available_slots;
-                    } else if (typeof ev.available_slots === 'string') {
+                    } catch {
+                        // If parsing fails, assume it's the old format
                         ranges = ev.available_slots.split(',').map((s: string) => s.trim()).filter(Boolean);
                     }
+                } else if (Array.isArray(ev.available_slots)) {
+                    // Handle case where getEventsForInputCollection already extracted the slots
+                    ranges = ev.available_slots;
                 }
             }
-            
+
             setMinPreferences(minPrefs);
             const slotsFromEvent = getSlotsFromRanges(ranges, ev.slot_len);
             setAllSlots(slotsFromEvent);

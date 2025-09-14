@@ -1,7 +1,7 @@
 ### *1. Date & Timing Issues*
 
-* *Monday default bug*: When choosing Monday, the system sets the date to the day before. Needs fixing.
-* *Meeting times off (4AM/5AM bug)*: Scheduler results sometimes show early morning times that were not chosen (e.g., 9–2 showing up as 4AM slots).
+* *Monday default bug*: When choosing Monday, the system sets the date to the day before. Needs fixing. --> done
+* *Meeting times off (4AM/5AM bug)*: Scheduler results sometimes show early morning times that were not chosen (e.g., 9–2 showing up as 4AM slots). --> done
 * *Time mismatch*: Faculty vs. student views show different times for the same event. Needs consistency.
 
 ---
