@@ -256,6 +256,14 @@ export default function SchedulerPage() {
             )}
             {selectedEvent && (
                 <>
+                    <div className="timezone-notice" style={{
+                        marginBottom: '16px',
+                        fontSize: '13px',
+                        color: '#6b7280',
+                        fontStyle: 'italic'
+                    }}>
+                        📍 All availability slots are shown in Central Time (CT/CST) - Northwestern University timezone
+                    </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                         <div>
                             <h2 className="text-lg font-semibold mb-2">Professors</h2>
@@ -266,7 +274,7 @@ export default function SchedulerPage() {
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Department</th>
-                                            <th>Available Slots</th>
+                                            <th>Available Slots (CT)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -299,7 +307,7 @@ export default function SchedulerPage() {
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Department</th>
-                                            <th>Available Slots</th>
+                                            <th>Available Slots (CT)</th>
                                         </tr>
                                     </thead>
                                     <tbody>

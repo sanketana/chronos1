@@ -70,7 +70,15 @@ export default function EventModal({ isOpen, onClose, onSubmit, initialValues, s
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="start_time" className="form-label">Start Time</label>
+                        <div className="timezone-notice" style={{
+                            marginBottom: '8px',
+                            fontSize: '12px',
+                            color: '#6b7280',
+                            fontStyle: 'italic'
+                        }}>
+                            📍 Enter event times in Central Time (CT/CST) - Northwestern University timezone
+                        </div>
+                        <label htmlFor="start_time" className="form-label">Start Time (Central Time)</label>
                         <input
                             id="start_time"
                             name="start_time"
@@ -81,7 +89,7 @@ export default function EventModal({ isOpen, onClose, onSubmit, initialValues, s
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="end_time" className="form-label">End Time</label>
+                        <label htmlFor="end_time" className="form-label">End Time (Central Time)</label>
                         <input
                             id="end_time"
                             name="end_time"

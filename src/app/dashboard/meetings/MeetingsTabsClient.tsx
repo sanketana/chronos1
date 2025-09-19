@@ -196,6 +196,14 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
                 </button>
             </div>
             <div style={{ marginTop: '1.5rem' }}>
+                <div className="timezone-notice" style={{
+                    marginBottom: '12px',
+                    fontSize: '13px',
+                    color: '#6b7280',
+                    fontStyle: 'italic'
+                }}>
+                    📍 All times are displayed in Central Time (CT/CST) - Northwestern University timezone
+                </div>
                 <div>
                     <table className="events-table">
                         <thead>
@@ -244,7 +252,7 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
                                 </th>
                                 <th>
                                     <select className="filter-select" value={slotFilter} onChange={e => setSlotFilter(e.target.value)}>
-                                        <option value="">Slot</option>
+                                        <option value="">Time Slot (CT)</option>
                                         {uniqueSlots.map(slot => (
                                             <option key={slot} value={slot}>{slot}</option>
                                         ))}

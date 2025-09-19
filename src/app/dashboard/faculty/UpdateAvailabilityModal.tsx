@@ -199,6 +199,14 @@ export default function UpdateAvailabilityModal({ isOpen, onClose, faculty, onSu
                                     <div><b>Slot Length:</b> {slotLen} min</div>
                                 </div>
                             </div>
+                            <div className="timezone-notice" style={{
+                                marginBottom: '12px',
+                                fontSize: '12px',
+                                color: '#6b7280',
+                                fontStyle: 'italic'
+                            }}>
+                                📍 Enter your availability in Central Time (CT/CST) - Northwestern University timezone
+                            </div>
                             <div className="form-group mt-2">
                                 <div className="font-bold text-gray-800 mb-3" style={{ fontWeight: 700 }}>I am available at below slots</div>
                                 <div className="w-full">

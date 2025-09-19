@@ -12,6 +12,7 @@
     - Clear Dashboard for students
     - Dev and Test Env for IT team + Migration process
     - Status Column - Self documentation
+    - Superadmin default password
 - Deployment Document
 - Programmer Manual
 - User Manual

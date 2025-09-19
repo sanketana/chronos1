@@ -22,11 +22,11 @@ interface AddEditMeetingModalProps {
     students: { id: string; name: string; }[];
 }
 
-export default function AddEditMeetingModal({ 
-    isOpen, 
-    onClose, 
-    onSubmit, 
-    initialValues, 
+export default function AddEditMeetingModal({
+    isOpen,
+    onClose,
+    onSubmit,
+    initialValues,
     isEdit = false,
     events,
     professors,
@@ -65,7 +65,7 @@ export default function AddEditMeetingModal({
                 <h2 className="modal-title">{isEdit ? 'Edit' : 'Create'} Meeting</h2>
                 <form onSubmit={handleSubmit}>
                     {initialValues?.id && <input type="hidden" name="id" value={initialValues.id} />}
-                    
+
                     <div className="form-group">
                         <label htmlFor="event_id" className="form-label">Event</label>
                         <select
@@ -121,7 +121,15 @@ export default function AddEditMeetingModal({
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="start_time" className="form-label">Start Time</label>
+                        <div className="timezone-notice" style={{
+                            marginBottom: '8px',
+                            fontSize: '12px',
+                            color: '#6b7280',
+                            fontStyle: 'italic'
+                        }}>
+                            📍 Enter meeting times in Central Time (CT/CST) - Northwestern University timezone
+                        </div>
+                        <label htmlFor="start_time" className="form-label">Start Time (Central Time)</label>
                         <input
                             id="start_time"
                             name="start_time"
@@ -133,7 +141,7 @@ export default function AddEditMeetingModal({
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="end_time" className="form-label">End Time</label>
+                        <label htmlFor="end_time" className="form-label">End Time (Central Time)</label>
                         <input
                             id="end_time"
                             name="end_time"

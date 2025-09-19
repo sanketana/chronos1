@@ -19,8 +19,9 @@ export async function createMeeting(formData: FormData) {
         await client.connect();
 
         try {
+            // Store times as-is in Central Time (no conversion)
             await client.query(
-                'INSERT INTO meetings (event_id, faculty_id, student_id, start_time, end_time, source) VALUES ($1, $2, $3, $4, $5, $6)',
+                'INSERT INTO meetings (event_id, faculty_id, student_id, start_time, end_time, source) VALUES ($1, $2, $3, $4::timestamp, $5::timestamp, $6)',
                 [eventId, facultyId, studentId, startTime, endTime, source]
             );
         } finally {
