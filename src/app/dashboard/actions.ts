@@ -81,7 +81,7 @@ export async function getAllEvents() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events ORDER BY date DESC');
-  
+
   // Process the available_slots to handle both old and new JSON formats
   const processedRows = result.rows.map(row => {
     if (row.available_slots) {
@@ -98,7 +98,7 @@ export async function getAllEvents() {
     }
     return row;
   });
-  
+
   await client.end();
   return processedRows;
 }
@@ -107,15 +107,16 @@ export async function getEventsForInputCollection() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['COLLECTING_AVAIL']);
-  
+
   // Process the available_slots to handle both old and new JSON formats
   const processedRows = result.rows.map(row => {
     if (row.available_slots) {
       try {
         const parsed = JSON.parse(row.available_slots);
         if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
-          // New format: extract just the slots for backward compatibility
-          row.available_slots = parsed.slots;
+          // Keep the full structure for student preferences modal
+          // The modal needs both slots and minPreferences
+          row.available_slots = JSON.stringify(parsed);
         }
         // If parsing fails or it's the old format, keep as is
       } catch {
@@ -124,7 +125,7 @@ export async function getEventsForInputCollection() {
     }
     return row;
   });
-  
+
   await client.end();
   return processedRows;
 }
@@ -133,7 +134,7 @@ export async function getEventsByStatus(status: string) {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', [status]);
-  
+
   // Process the available_slots to handle both old and new JSON formats
   const processedRows = result.rows.map(row => {
     if (row.available_slots) {
@@ -150,7 +151,7 @@ export async function getEventsByStatus(status: string) {
     }
     return row;
   });
-  
+
   await client.end();
   return processedRows;
 }
@@ -159,7 +160,7 @@ export async function getEventsForScheduling() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['SCHEDULING']);
-  
+
   // Process the available_slots to handle both old and new JSON formats
   const processedRows = result.rows.map(row => {
     if (row.available_slots) {
@@ -176,7 +177,7 @@ export async function getEventsForScheduling() {
     }
     return row;
   });
-  
+
   await client.end();
   return processedRows;
 }
@@ -185,7 +186,7 @@ export async function getEventsForMeetings() {
   const client = new Client({ connectionString: process.env.NEON_POSTGRES_URL });
   await client.connect();
   const result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots FROM events WHERE status = $1 ORDER BY date DESC', ['PUBLISHED']);
-  
+
   // Process the available_slots to handle both old and new JSON formats
   const processedRows = result.rows.map(row => {
     if (row.available_slots) {
@@ -202,7 +203,7 @@ export async function getEventsForMeetings() {
     }
     return row;
   });
-  
+
   await client.end();
   return processedRows;
 } 

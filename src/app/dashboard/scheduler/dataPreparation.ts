@@ -26,69 +26,88 @@ function generateSlots(startTime: string, endTime: string, slotLen: number): str
 }
 
 export async function prepareMatchingInput(eventId: string): Promise<MatchingInput> {
-    // Fetch all data
-    const [events, availabilities, preferences] = await Promise.all([
-        getAllEvents(),
-        getAllAvailabilities(),
-        getAllPreferences(),
-    ]);
-    const event = events.find(e => e.id === eventId);
-    if (!event) throw new Error('Event not found');
+    try {
+        // Fetch all data
+        const [events, availabilities, preferences] = await Promise.all([
+            getAllEvents(),
+            getAllAvailabilities(),
+            getAllPreferences(),
+        ]);
 
-    // Professors
-    const professors = availabilities
-        .filter((a: unknown) => (a as { event_id: string }).event_id === eventId)
-        .map((a: unknown) => {
-            const av = a as { faculty_id: string; available_slots?: string[] | string };
-            let availableSlots: string[] = [];
-            if (av.available_slots) {
-                availableSlots = typeof av.available_slots === 'string' ? JSON.parse(av.available_slots) : av.available_slots;
-            }
-            return {
-                id: av.faculty_id,
-                availableSlots,
-            };
-        });
+        const event = events.find(e => e.id === eventId);
+        if (!event) throw new Error('Event not found');
 
-    // Students
-    const students = preferences
-        .filter((p: unknown) => (p as { event_id: string }).event_id === eventId)
-        .map((p: unknown) => {
-            const pref = p as { student_id: string; professor_ids: string[] | string; available_slots?: string[] | string };
-            let availableSlots: string[] = [];
-            if (pref.available_slots) {
-                availableSlots = typeof pref.available_slots === 'string' ? JSON.parse(pref.available_slots) : pref.available_slots;
-            }
-            return {
-                id: pref.student_id,
-                preferences: (typeof pref.professor_ids === 'string' ? JSON.parse(pref.professor_ids) : pref.professor_ids) as string[],
-                availableSlots,
-            };
-        });
+        // Professors
+        const professors = availabilities
+            .filter((a: unknown) => (a as { event_id: string }).event_id === eventId)
+            .map((a: unknown) => {
+                const av = a as { faculty_id: string; available_slots?: string[] | string };
+                let availableSlots: string[] = [];
+                if (av.available_slots) {
+                    availableSlots = typeof av.available_slots === 'string' ? JSON.parse(av.available_slots) : av.available_slots;
+                }
+                return {
+                    id: av.faculty_id,
+                    availableSlots,
+                };
+            });
 
-    // Extract slots from event's available_slots JSON
-    let eventSlots: string[] = [];
-    if (event.available_slots) {
-        try {
-            const parsed = JSON.parse(event.available_slots);
-            if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
-                eventSlots = parsed.slots;
+        // Students
+        const students = preferences
+            .filter((p: unknown) => (p as { event_id: string }).event_id === eventId)
+            .map((p: unknown) => {
+                const pref = p as { student_id: string; professor_ids: string[] | string; available_slots?: string[] | string };
+                let availableSlots: string[] = [];
+                if (pref.available_slots) {
+                    availableSlots = typeof pref.available_slots === 'string' ? JSON.parse(pref.available_slots) : pref.available_slots;
+                }
+                return {
+                    id: pref.student_id,
+                    preferences: (typeof pref.professor_ids === 'string' ? JSON.parse(pref.professor_ids) : pref.professor_ids) as string[],
+                    availableSlots,
+                };
+            });
+
+        // Extract slots from event's available_slots JSON
+        let eventSlots: string[] = [];
+        if (event.available_slots) {
+            try {
+                const parsed = JSON.parse(event.available_slots);
+                if (parsed && typeof parsed === 'object' && Array.isArray(parsed.slots)) {
+                    eventSlots = parsed.slots;
+                }
+            } catch {
+                // If parsing fails, assume it's the old format
+                eventSlots = typeof event.available_slots === 'string' ? JSON.parse(event.available_slots) : event.available_slots;
             }
-        } catch {
-            // If parsing fails, assume it's the old format
-            eventSlots = typeof event.available_slots === 'string' ? JSON.parse(event.available_slots) : event.available_slots;
         }
-    }
-    
-    // If we couldn't extract slots from the new format, fall back to generating them
-    if (eventSlots.length === 0) {
-        eventSlots = generateSlots(event.start_time, event.end_time, event.slot_len);
-    }
 
-    return {
-        eventId,
-        slots: eventSlots,
-        professors,
-        students,
-    };
+        // Ensure eventSlots is an array before checking length
+        if (!Array.isArray(eventSlots)) {
+            if (typeof eventSlots === 'string') {
+                try {
+                    eventSlots = JSON.parse(eventSlots);
+                } catch {
+                    eventSlots = [];
+                }
+            } else {
+                eventSlots = [];
+            }
+        }
+
+        // If we couldn't extract slots from the new format, fall back to generating them
+        if (eventSlots.length === 0) {
+            eventSlots = generateSlots(event.start_time, event.end_time, event.slot_len);
+        }
+
+
+        return {
+            eventId,
+            slots: eventSlots,
+            professors,
+            students,
+        };
+    } catch (error) {
+        throw error;
+    }
 } 

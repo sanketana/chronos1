@@ -96,8 +96,8 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
             let ranges: string[] = [];
             let minPrefs = 1; // default
 
-            if (ev.available_slots && ev.available_slots.length > 0) {
-                // Handle both string (JSON) and array formats
+            if (ev.available_slots) {
+                // Handle string (JSON), object, and array formats
                 if (typeof ev.available_slots === 'string') {
                     try {
                         const parsed = JSON.parse(ev.available_slots);
@@ -113,8 +113,16 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                         // If parsing fails, assume it's the old format
                         ranges = ev.available_slots.split(',').map((s: string) => s.trim()).filter(Boolean);
                     }
+                } else if (typeof ev.available_slots === 'object' && ev.available_slots !== null) {
+                    // Handle case where available_slots is already a parsed object
+                    if (Array.isArray((ev.available_slots as any).slots)) {
+                        ranges = (ev.available_slots as any).slots;
+                    }
+                    if (typeof (ev.available_slots as any).minPreferences === 'number') {
+                        minPrefs = (ev.available_slots as any).minPreferences;
+                    }
                 } else if (Array.isArray(ev.available_slots)) {
-                    // Handle case where getEventsForInputCollection already extracted the slots
+                    // Handle case where available_slots is already an array (legacy format)
                     ranges = ev.available_slots;
                 }
             }
