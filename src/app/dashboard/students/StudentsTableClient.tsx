@@ -112,7 +112,7 @@ export default function StudentsTableClient({ students }: { students: Student[] 
             />
             {(role === 'admin' || role === 'superadmin') && (
                 <div className="mb-4 flex">
-                    <button className="primary-btn" style={{ width: '200px', height: '44px' }} onClick={handleAddClick}>+ Create New Student</button>
+                    <button className="primary-btn" style={{ width: '200px', height: '44px' }} onClick={handleAddClick}>+ Create New Attendee</button>
                     <button className="secondary-btn" style={{ width: '200px', height: '44px', marginLeft: '16px' }} onClick={handleBulkUploadClick}>+ Bulk Upload</button>
                 </div>
             )}

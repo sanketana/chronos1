@@ -44,7 +44,7 @@ export default function AddEditStudentModal({ isOpen, onClose, onSubmit, initial
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h2 className="modal-title">{isEdit ? 'Edit Student' : 'Add Student'}</h2>
+                <h2 className="modal-title">{isEdit ? 'Edit Attendee' : 'Add Attendee'}</h2>
                 <form onSubmit={handleSubmit}>
                     {initialValues.id && <input type="hidden" name="id" value={initialValues.id} />}
                     <div className="form-group">
@@ -71,7 +71,7 @@ export default function AddEditStudentModal({ isOpen, onClose, onSubmit, initial
                     {error && <div className="text-red-600 text-sm">{error}</div>}
                     <div className="modal-actions">
                         <button type="button" className="secondary-btn" onClick={onClose} disabled={loading}>Cancel</button>
-                        <button type="submit" className="primary-btn" disabled={loading}>{loading ? (isEdit ? 'Saving...' : 'Adding...') : (isEdit ? 'Save Changes' : 'Add Student')}</button>
+                        <button type="submit" className="primary-btn" disabled={loading}>{loading ? (isEdit ? 'Saving...' : 'Adding...') : (isEdit ? 'Save Changes' : 'Add Attendee')}</button>
                     </div>
                 </form>
             </div>

@@ -9,7 +9,7 @@ export default function StudentsTabsClient({ students, preferences, faculty }: {
     const [tab, setTab] = useState<'students' | 'preferences'>('students');
     return (
         <div>
-            <h1 className="dashboard-title">Students</h1>
+            <h1 className="dashboard-title">Attendees</h1>
             <div className="tabs" role="tablist">
                 <button
                     className="tab-btn"
@@ -18,7 +18,7 @@ export default function StudentsTabsClient({ students, preferences, faculty }: {
                     onClick={() => setTab('students')}
                     tabIndex={0}
                 >
-                    Students
+                    Attendees
                 </button>
                 <button
                     className="tab-btn"

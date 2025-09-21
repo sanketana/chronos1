@@ -24,7 +24,7 @@ async function getMeetings(user: User, latestRunId: number | null) {
     let result;
     if (user && user.role === 'student' && latestRunId) {
         result = await client.query(`
-            SELECT m.*, e.name as event_name, u1.name as faculty_name, u2.name as student_name
+            SELECT m.*, e.name as event_name, u1.name as faculty_name, u1.email as faculty_email, u2.name as student_name, u2.email as student_email
             FROM meetings m
             JOIN events e ON m.event_id = e.id
             JOIN users u1 ON m.faculty_id = u1.id
@@ -34,7 +34,7 @@ async function getMeetings(user: User, latestRunId: number | null) {
         `, [user.userId || user.id, latestRunId]);
     } else if (user && user.role === 'student') {
         result = await client.query(`
-            SELECT m.*, e.name as event_name, u1.name as faculty_name, u2.name as student_name
+            SELECT m.*, e.name as event_name, u1.name as faculty_name, u1.email as faculty_email, u2.name as student_name, u2.email as student_email
             FROM meetings m
             JOIN events e ON m.event_id = e.id
             JOIN users u1 ON m.faculty_id = u1.id
@@ -44,7 +44,7 @@ async function getMeetings(user: User, latestRunId: number | null) {
         `, [user.userId || user.id]);
     } else if (user && user.role === 'faculty' && latestRunId) {
         result = await client.query(`
-            SELECT m.*, e.name as event_name, u1.name as faculty_name, u2.name as student_name
+            SELECT m.*, e.name as event_name, u1.name as faculty_name, u1.email as faculty_email, u2.name as student_name, u2.email as student_email
             FROM meetings m
             JOIN events e ON m.event_id = e.id
             JOIN users u1 ON m.faculty_id = u1.id
@@ -54,7 +54,7 @@ async function getMeetings(user: User, latestRunId: number | null) {
         `, [user.userId || user.id, latestRunId]);
     } else if (user && user.role === 'faculty') {
         result = await client.query(`
-            SELECT m.*, e.name as event_name, u1.name as faculty_name, u2.name as student_name
+            SELECT m.*, e.name as event_name, u1.name as faculty_name, u1.email as faculty_email, u2.name as student_name, u2.email as student_email
             FROM meetings m
             JOIN events e ON m.event_id = e.id
             JOIN users u1 ON m.faculty_id = u1.id
@@ -64,7 +64,7 @@ async function getMeetings(user: User, latestRunId: number | null) {
         `, [user.userId || user.id]);
     } else {
         result = await client.query(`
-            SELECT m.*, e.name as event_name, u1.name as faculty_name, u2.name as student_name
+            SELECT m.*, e.name as event_name, u1.name as faculty_name, u1.email as faculty_email, u2.name as student_name, u2.email as student_email
             FROM meetings m
             JOIN events e ON m.event_id = e.id
             JOIN users u1 ON m.faculty_id = u1.id
@@ -111,10 +111,10 @@ async function getEvents(user: User) {
     let result;
     if (user && (user.role === 'faculty' || user.role === 'student')) {
         // Faculty and students can only see published events
-        result = await client.query('SELECT id, name FROM events WHERE status = $1', ['PUBLISHED']);
+        result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date FROM events WHERE status = $1', ['PUBLISHED']);
     } else {
         // Admins can see all events
-        result = await client.query('SELECT id, name FROM events');
+        result = await client.query('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date FROM events');
     }
     await client.end();
     return result.rows;

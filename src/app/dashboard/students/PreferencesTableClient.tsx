@@ -78,7 +78,7 @@ export default function PreferencesTableClient({ preferences, faculty }: { prefe
                     <tr>
                         <th>
                             <select className="filter-select" value={studentFilter} onChange={e => setStudentFilter(e.target.value)}>
-                                <option value="">Student</option>
+                                <option value="">Attendee</option>
                                 {uniqueStudents.map(name => (
                                     <option key={name} value={name}>{name}</option>
                                 ))}

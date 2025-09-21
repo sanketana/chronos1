@@ -103,7 +103,7 @@ export default function AddEditMeetingModal({
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="student_id" className="form-label">Student</label>
+                        <label htmlFor="student_id" className="form-label">Attendee</label>
                         <select
                             id="student_id"
                             name="student_id"

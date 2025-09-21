@@ -234,7 +234,7 @@ export default function SchedulerPage() {
                                     </tr>
                                     <tr>
                                         <td className="py-1 pr-4 pl-2 font-semibold text-gray-700 text-left align-top" style={{ borderBottom: '1px solid #eee' }}>
-                                            Unmatched Students
+                                            Unmatched Attendees
                                         </td>
                                         <td className="py-1 pl-2 text-yellow-900 text-left align-top" style={{ borderBottom: '1px solid #eee' }}>
                                             {'unmatchedStudents' in result && result.unmatchedStudents?.length > 0 ? result.unmatchedStudents.map(getStudentName).join(', ') : 'None'}
@@ -299,7 +299,7 @@ export default function SchedulerPage() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold mb-2">Students</h2>
+                            <h2 className="text-lg font-semibold mb-2">Attendees</h2>
                             <div className="bg-white rounded-lg shadow p-0 overflow-x-auto">
                                 <table className="events-table">
                                     <thead>

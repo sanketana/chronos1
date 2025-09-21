@@ -63,7 +63,7 @@ export default async function DashboardPage() {
                     <div className="stat-value">{stats.faculty}</div>
                 </div>
                 <div className="dashboard-stat-card">
-                    <span className="stat-icon" aria-label="Students">
+                    <span className="stat-icon" aria-label="Attendees">
                         <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                             <circle cx="8" cy="10" r="3" fill="#E4E0EE" stroke="#4E2A84" strokeWidth="1.5" />
                             <circle cx="16" cy="10" r="3" fill="#E4E0EE" stroke="#4E2A84" strokeWidth="1.5" />
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
                             <path d="M14 20c0-2 2.5-3.5 5-3.5s3 1.5 3 3.5" stroke="#4E2A84" strokeWidth="1.5" />
                         </svg>
                     </span>
-                    <div className="stat-label">Students</div>
+                    <div className="stat-label">Attendees</div>
                     <div className="stat-value">{stats.students}</div>
                 </div>
                 <div className="dashboard-stat-card">

@@ -114,7 +114,7 @@ export default function EventModal({ isOpen, onClose, onSubmit, initialValues, s
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="minPreferences" className="form-label">Minimum Student Preferences</label>
+                        <label htmlFor="minPreferences" className="form-label">Minimum Attendee Preferences</label>
                         <input
                             id="minPreferences"
                             name="minPreferences"

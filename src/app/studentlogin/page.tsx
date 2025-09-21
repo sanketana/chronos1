@@ -16,7 +16,7 @@ export default function StudentLoginPage() {
     return (
         <div className="centered-page">
             <form className="login-form" action="/studentlogin/auth" method="POST">
-                <h1 className="login-title">Chronos Student Login</h1>
+                <h1 className="login-title">Chronos Attendee Login</h1>
                 {error && (
                     <div className="error-message">Invalid email or password. Please try again.</div>
                 )}

@@ -16,14 +16,14 @@ interface BulkUploadResult {
     errors: string[];
 }
 
-export default function BulkUploadStudentModal({ 
-    isOpen, 
-    onClose, 
-    onSuccess 
-}: { 
-    isOpen: boolean; 
-    onClose: () => void; 
-    onSuccess: () => void; 
+export default function BulkUploadStudentModal({
+    isOpen,
+    onClose,
+    onSuccess
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess: () => void;
 }) {
     const [rawData, setRawData] = useState('');
     const [parsedRecords, setParsedRecords] = useState<StudentRecord[]>([]);
@@ -122,7 +122,7 @@ export default function BulkUploadStudentModal({
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h2 className="modal-title">Bulk Upload Students</h2>
+                <h2 className="modal-title">Bulk Upload Attendees</h2>
 
                 {step === 'input' && (
                     <div>
@@ -158,7 +158,7 @@ export default function BulkUploadStudentModal({
                             <p>Valid records: <span className="text-green-600 font-semibold">{parsedRecords.filter(r => r.isValid).length}</span></p>
                             <p>Invalid records: <span className="text-red-600 font-semibold">{parsedRecords.filter(r => !r.isValid).length}</span></p>
                         </div>
-                        
+
                         <div className="form-group" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                             <table className="events-table">
                                 <thead>
@@ -197,8 +197,8 @@ export default function BulkUploadStudentModal({
 
                         <div className="modal-actions">
                             <button className="secondary-btn" onClick={() => setStep('input')}>Back</button>
-                            <button 
-                                className="primary-btn" 
+                            <button
+                                className="primary-btn"
                                 onClick={handleImport}
                                 disabled={isImporting || parsedRecords.filter(r => r.isValid).length === 0}
                             >

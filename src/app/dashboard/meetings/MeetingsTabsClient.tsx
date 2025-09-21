@@ -2,6 +2,7 @@
 import React, { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AddEditMeetingModal from './AddEditMeetingModal';
+import MeetingInvitationModal from './MeetingInvitationModal';
 import { createMeeting, updateMeeting, deleteMeeting } from './actions';
 
 interface Meeting {
@@ -13,6 +14,8 @@ interface Meeting {
     event_name: string;
     faculty_name: string;
     student_name: string;
+    faculty_email: string;
+    student_email: string;
     start_time?: string;
     end_time?: string;
     source?: string;
@@ -23,7 +26,7 @@ interface Meeting {
 }
 
 interface User { id: string; name: string; }
-interface Event { id: string; name: string; }
+interface Event { id: string; name: string; date: string; }
 interface RunMeta {
     id: number;
     run_time: string;
@@ -41,6 +44,7 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
     const [isModalOpen, setModalOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [editMeeting, setEditMeeting] = useState<Meeting | null>(null);
+    const [isInvitationModalOpen, setInvitationModalOpen] = useState(false);
     const [, startTransition] = useTransition();
     const router = useRouter();
     const [role, setRole] = useState<string | null>(null);
@@ -148,7 +152,7 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
         const exportData = filteredMeetings.map(m => ({
             Event: m.event_name,
             Faculty: m.faculty_name,
-            Student: m.student_name,
+            Attendee: m.student_name,
             Date: formatDate(m.start_time),
             Slot: formatSlot(m.start_time, m.end_time),
         }));
@@ -194,6 +198,13 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
                 >
                     Export as Excel
                 </button>
+                <button
+                    className="primary-btn"
+                    style={{ width: '200px', height: '44px', marginLeft: '16px' }}
+                    onClick={() => setInvitationModalOpen(true)}
+                >
+                    📧 Meeting Invitations
+                </button>
             </div>
             <div style={{ marginTop: '1.5rem' }}>
                 <div className="timezone-notice" style={{
@@ -236,7 +247,7 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
                                 </th>
                                 <th>
                                     <select className="filter-select" value={studentFilter} onChange={e => setStudentFilter(e.target.value)}>
-                                        <option value="">Student</option>
+                                        <option value="">Attendee</option>
                                         {students.map(s => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
@@ -301,6 +312,12 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
                     </table>
                 </div>
             </div>
+            <MeetingInvitationModal
+                isOpen={isInvitationModalOpen}
+                onClose={() => setInvitationModalOpen(false)}
+                meetings={meetings}
+                events={events}
+            />
         </div>
     );
 } 

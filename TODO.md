@@ -1,5 +1,10 @@
 # TODO
 
+Fixed
+- Proper slot handling, storing as jsonb
+- Date storage as CST & time zone preservation
+- Time zone annotation in front end
+
 - Bug fixes
 - Additional Requirment
     - Resetting password users
@@ -16,7 +21,7 @@
 - Deployment Document
 - Programmer Manual
 - User Manual
-
+- Notification - Email draft and email list once the schedule is ready
 Minor Issue
 - Events loading slow on Student preferences
 - Default password for Students and prof is null

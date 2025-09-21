@@ -7,7 +7,7 @@ const allSidebarItems = [
     { label: 'Dashboard Home', href: '/dashboard', roles: ['admin', 'superadmin', 'faculty', 'student'] },
     { label: 'Events', href: '/dashboard/events', roles: ['admin', 'superadmin'] },
     { label: 'Faculty', href: '/dashboard/faculty', roles: ['admin', 'superadmin'] },
-    { label: 'Students', href: '/dashboard/students', roles: ['admin', 'superadmin'] },
+    { label: 'Attendees', href: '/dashboard/students', roles: ['admin', 'superadmin'] },
     { label: 'Scheduler', href: '/dashboard/scheduler', roles: ['admin', 'superadmin'] },
     // Self-serve links for faculty and students
     { label: 'My Availability', href: '/dashboard/faculty', roles: ['faculty'] },
