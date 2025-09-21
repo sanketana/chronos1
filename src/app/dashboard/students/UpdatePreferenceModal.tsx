@@ -15,8 +15,8 @@ interface Props {
 export default function UpdatePreferenceModal({ isOpen, onClose, student }: Props) {
     const [eventId, setEventId] = useState("");
     const [professors, setProfessors] = useState<{ id: string; name: string }[]>([]);
-    const [professorChoices, setProfessorChoices] = useState<(string | null)[]>([null, null, null, null, null]);
-    const [events, setEvents] = useState<{ id: string; name: string; date: string; start_time: string; end_time: string; slot_len: number; available_slots?: string }[]>([]);
+    const [professorChoices, setProfessorChoices] = useState<(string | null)[]>([]);
+    const [events, setEvents] = useState<{ id: string; name: string; date: string; start_time: string; end_time: string; slot_len: number; available_slots?: string; min_faculty?: number; max_faculty?: number }[]>([]);
     const [notes, setNotes] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,8 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
     const [showErrorPopup, setShowErrorPopup] = useState(false);
     const errorPopupRef = useRef<HTMLDivElement>(null);
     const selectAllRef = useRef<HTMLInputElement>(null);
-    const [minPreferences, setMinPreferences] = useState(1);
+    const [minFaculty, setMinFaculty] = useState(3);
+    const [maxFaculty, setMaxFaculty] = useState(5);
 
     useEffect(() => {
         async function fetchData() {
@@ -41,14 +42,15 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
             if (eventId) {
                 const available = await getAvailableFacultyForEvent(eventId);
                 setProfessors(available);
-                setProfessorChoices([null, null, null, null, null]);
+                // Initialize professor choices array based on maxFaculty
+                setProfessorChoices(new Array(maxFaculty).fill(null));
             } else {
                 setProfessors([]);
-                setProfessorChoices([null, null, null, null, null]);
+                setProfessorChoices([]);
             }
         }
         fetchAvailableFaculty();
-    }, [eventId]);
+    }, [eventId, maxFaculty]);
 
     // Helper to generate slots within a range (copied from faculty modal)
     function getSlotsFromRanges(ranges: string[], slotLen: number): string[] {
@@ -94,7 +96,8 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
         const ev = events.find(e => e.id === eventId);
         if (ev && ev.slot_len) {
             let ranges: string[] = [];
-            let minPrefs = 1; // default
+            const minFac = ev.min_faculty || 3; // default
+            const maxFac = ev.max_faculty || 5; // default
 
             if (ev.available_slots) {
                 // Handle string (JSON), object, and array formats
@@ -104,9 +107,6 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                         if (parsed && typeof parsed === 'object') {
                             if (Array.isArray(parsed.slots)) {
                                 ranges = parsed.slots;
-                            }
-                            if (typeof parsed.minPreferences === 'number') {
-                                minPrefs = parsed.minPreferences;
                             }
                         }
                     } catch {
@@ -118,23 +118,22 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                     if (Array.isArray((ev.available_slots as any).slots)) {
                         ranges = (ev.available_slots as any).slots;
                     }
-                    if (typeof (ev.available_slots as any).minPreferences === 'number') {
-                        minPrefs = (ev.available_slots as any).minPreferences;
-                    }
                 } else if (Array.isArray(ev.available_slots)) {
                     // Handle case where available_slots is already an array (legacy format)
                     ranges = ev.available_slots;
                 }
             }
 
-            setMinPreferences(minPrefs);
+            setMinFaculty(minFac);
+            setMaxFaculty(maxFac);
             const slotsFromEvent = getSlotsFromRanges(ranges, ev.slot_len);
             setAllSlots(slotsFromEvent);
             setAvailableSlots(slotsFromEvent); // select all by default
         } else {
             setAllSlots([]);
             setAvailableSlots([]);
-            setMinPreferences(1);
+            setMinFaculty(3);
+            setMaxFaculty(5);
         }
     }, [eventId, events]);
 
@@ -163,8 +162,14 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
         e.preventDefault();
         setError(null);
         const selected = professorChoices.filter(Boolean) as string[];
-        if (selected.length < minPreferences) {
-            setError(`Please select at least ${minPreferences} unique professors.`);
+        if (selected.length < minFaculty) {
+            setError(`Please select at least ${minFaculty} unique professor${minFaculty > 1 ? 's' : ''}.`);
+            setShowErrorPopup(true);
+            setTab('preferences');
+            return;
+        }
+        if (selected.length > maxFaculty) {
+            setError(`Please select no more than ${maxFaculty} professor${maxFaculty > 1 ? 's' : ''}.`);
             setShowErrorPopup(true);
             setTab('preferences');
             return;
@@ -242,17 +247,22 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                         {tab === 'preferences' && (
                             <>
                                 <div className="form-group">
-                                    <label className="form-label">Select your Professor preference</label>
-                                    {[0, 1, 2, 3, 4].map(idx => (
+                                    <label className="form-label">
+                                        Select your Professor preference
+                                        <span className="text-xs text-gray-500 ml-2">
+                                            ({minFaculty} required, up to {maxFaculty} allowed)
+                                        </span>
+                                    </label>
+                                    {Array.from({ length: maxFaculty }, (_, idx) => (
                                         <div key={idx} style={{ marginBottom: 8 }}>
                                             <label className="form-label">
-                                                Preference {idx + 1} {idx >= 3 ? <span className="text-xs text-gray-500">(optional)</span> : null}
+                                                Preference {idx + 1} {idx >= minFaculty ? <span className="text-xs text-gray-500">(optional)</span> : <span className="text-xs text-red-500">(required)</span>}
                                             </label>
                                             <select
                                                 className="form-input"
                                                 value={professorChoices[idx] || ""}
                                                 onChange={e => handleProfessorChange(idx, e.target.value)}
-                                                required={idx < 3}
+                                                required={idx < minFaculty}
                                                 disabled={!eventId || professors.length === 0}
                                             >
                                                 <option value="" disabled>Select Professor</option>

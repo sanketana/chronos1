@@ -51,7 +51,7 @@ export async function deleteStudent(id: string) {
 export async function upsertPreference({ studentId, eventId, professorIds, preferences, unavailableSlots }: { studentId: string; eventId: string; professorIds: string[]; preferences: string; unavailableSlots: string[] }) {
     if (!studentId || !eventId || !professorIds) throw new Error('Missing required fields');
 
-    // Get the event to check minPreferences
+    // Get the event to check faculty limits
     const client = new Client({
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
@@ -59,32 +59,22 @@ export async function upsertPreference({ studentId, eventId, professorIds, prefe
     await client.connect();
 
     try {
-        // Get event details to check minPreferences
-        const eventResult = await client.query('SELECT available_slots FROM events WHERE id = $1', [eventId]);
+        // Get event details to check faculty limits
+        const eventResult = await client.query('SELECT min_faculty, max_faculty FROM events WHERE id = $1', [eventId]);
         if (eventResult.rows.length === 0) {
             throw new Error('Event not found');
         }
 
         const event = eventResult.rows[0];
-        let minPreferences = 1; // default
+        const minFaculty = event.min_faculty || 3; // default
+        const maxFaculty = event.max_faculty || 5; // default
 
-        try {
-            if (event.available_slots) {
-                const parsed = JSON.parse(event.available_slots);
-                if (parsed && typeof parsed === 'object' && typeof parsed.minPreferences === 'number') {
-                    minPreferences = parsed.minPreferences;
-                }
-            }
-        } catch {
-            // If parsing fails, use default minPreferences = 1
+        // Validate based on event's faculty limits
+        if (professorIds.length < minFaculty) {
+            throw new Error(`Must select at least ${minFaculty} professor${minFaculty > 1 ? 's' : ''}`);
         }
-
-        // Validate based on event's minPreferences
-        if (professorIds.length < minPreferences) {
-            throw new Error(`Must select at least ${minPreferences} professor${minPreferences > 1 ? 's' : ''}`);
-        }
-        if (professorIds.length > 5) {
-            throw new Error('Cannot select more than 5 professors');
+        if (professorIds.length > maxFaculty) {
+            throw new Error(`Cannot select more than ${maxFaculty} professor${maxFaculty > 1 ? 's' : ''}`);
         }
 
         // Check for duplicates

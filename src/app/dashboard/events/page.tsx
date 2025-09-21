@@ -14,6 +14,8 @@ interface Event {
     start_time?: string;
     end_time?: string;
     available_slots?: string;
+    min_faculty?: number;
+    max_faculty?: number;
 }
 
 async function getEventsWithAuth() {
@@ -29,9 +31,9 @@ async function getEventsWithAuth() {
             ssl: { rejectUnauthorized: false }
         });
         await client.connect();
-        const result = await client.query<Event>('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots, created_at FROM events ORDER BY created_at DESC');
+        const result = await client.query<Event>('SELECT id, name, to_char(date, \'YYYY-MM-DD\') as date, slot_len, status, start_time, end_time, available_slots, min_faculty, max_faculty, created_at FROM events ORDER BY created_at DESC');
         events = result.rows;
-        
+
         // Process the available_slots to handle both old and new JSON formats
         events = events.map(event => {
             if (event.available_slots) {
@@ -48,7 +50,7 @@ async function getEventsWithAuth() {
             }
             return event;
         });
-        
+
         await client.end();
     } catch (err: unknown) {
         if (typeof err === 'object' && err !== null) {

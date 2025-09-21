@@ -16,7 +16,8 @@ interface Event {
     start_time?: string;
     end_time?: string;
     available_slots?: unknown;
-    minPreferences?: number;
+    min_faculty?: number;
+    max_faculty?: number;
 }
 
 // Helper function to extract minPreferences from available_slots JSON
@@ -123,7 +124,8 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
         start_time?: string;
         end_time?: string;
         available_slots?: string;
-        minPreferences?: number;
+        min_faculty?: number;
+        max_faculty?: number;
     } | null>(null);
     const router = useRouter();
 
@@ -145,7 +147,7 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                     submitLabel="Update"
                 />
             )}
-            
+
             {/* Event Lifecycle Information */}
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="text-lg font-semibold text-blue-800 mb-4">📋 Event Lifecycle</h3>
@@ -171,7 +173,7 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                     💡 Tip: Use the &quot;Edit&quot; button to change an event&apos;s status and move it through the lifecycle
                 </p>
             </div>
-            
+
             {events.length === 0 ? (
                 <div>No events found or error loading events. Check server logs for details.</div>
             ) : (
@@ -206,7 +208,7 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                             } catch {
                                 dateStr = String(event.date);
                             }
-                            
+
                             // Format date for edit (YYYY-MM-DD format for HTML date input)
                             let dateForEdit = '';
                             try {
@@ -228,13 +230,13 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                             } catch {
                                 dateForEdit = event.date || '';
                             }
-                            
+
                             // Extract slots and minPreferences for display and editing
                             const slots = extractSlots(event.available_slots);
                             const minPrefs = extractMinPreferences(event.available_slots);
                             const slotsForEdit = slots.join(', ');
                             const sessionsDisplay = formatSessionsDisplay(event.available_slots);
-                            
+
                             return (
                                 <tr key={event.id}>
                                     <td>{event.name}</td>
@@ -244,11 +246,12 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                                     <td>{event.slot_len} min</td>
                                     <td>{event.status}</td>
                                     <td>
-                                        <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => setEditEvent({ 
-                                            ...event, 
-                                            date: dateForEdit, 
+                                        <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => setEditEvent({
+                                            ...event,
+                                            date: dateForEdit,
                                             available_slots: slotsForEdit,
-                                            minPreferences: minPrefs
+                                            min_faculty: event.min_faculty || 3,
+                                            max_faculty: event.max_faculty || 5
                                         })}>Edit</button>
                                         <DeleteEventButton eventId={event.id} />
                                     </td>
