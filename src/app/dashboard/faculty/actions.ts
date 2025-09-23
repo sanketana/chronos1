@@ -80,7 +80,7 @@ export async function getAllAvailabilities() {
         JOIN events e ON a.event_id = e.id
         ORDER BY a.updated_at DESC
     `);
-    
+
     // Process the available_slots to handle both old and new JSON formats
     const processedRows = result.rows.map(row => {
         if (row.available_slots) {
@@ -97,7 +97,7 @@ export async function getAllAvailabilities() {
         }
         return row;
     });
-    
+
     await client.end();
     return processedRows;
 }
@@ -135,6 +135,22 @@ export async function getAvailableFacultyForEvent(eventId: string) {
     return result.rows;
 }
 
+export async function getAllFaculty() {
+    const client = new Client({
+        connectionString: process.env.NEON_POSTGRES_URL,
+        ssl: { rejectUnauthorized: false }
+    });
+    await client.connect();
+    const result = await client.query(`
+        SELECT id, name
+        FROM users
+        WHERE role = 'faculty' AND status = 'active'
+        ORDER BY name ASC
+    `);
+    await client.end();
+    return result.rows;
+}
+
 export async function getAvailability(facultyId: string, eventId: string) {
     if (!facultyId || !eventId) throw new Error('Missing facultyId or eventId');
     const client = new Client({
@@ -159,9 +175,9 @@ export async function bulkUploadFaculty(records: { name: string; email: string; 
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
-    
+
     await client.connect();
-    
+
     let successCount = 0;
     let failedCount = 0;
     const errors: string[] = [];

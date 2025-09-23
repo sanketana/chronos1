@@ -10,3 +10,4 @@ CREATE TRIGGER update_meetings_updated_at BEFORE UPDATE ON meetings FOR EACH ROW
 
 
 
+

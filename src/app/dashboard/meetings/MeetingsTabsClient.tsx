@@ -198,13 +198,15 @@ export default function MeetingsTabsClient({ meetings, professors, students, eve
                 >
                     Export as Excel
                 </button>
-                <button
-                    className="primary-btn"
-                    style={{ width: '200px', height: '44px', marginLeft: '16px' }}
-                    onClick={() => setInvitationModalOpen(true)}
-                >
-                    📧 Meeting Invitations
-                </button>
+                {(role === 'admin' || role === 'superadmin') && (
+                    <button
+                        className="primary-btn"
+                        style={{ width: '200px', height: '44px', marginLeft: '16px' }}
+                        onClick={() => setInvitationModalOpen(true)}
+                    >
+                        📧 Meeting Invitations
+                    </button>
+                )}
             </div>
             <div style={{ marginTop: '1.5rem' }}>
                 <div className="timezone-notice" style={{

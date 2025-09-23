@@ -3,6 +3,9 @@ import React from 'react';
 import EventModalButton from '../EventModalButton';
 import EventModal from '../EventModal';
 import DeleteEventButton from './DeleteEventButton';
+import EventProgressStepper from './EventProgressStepper';
+import SmartActionButtons from './SmartActionButtons';
+import { getStatusInfo } from './EventStatusHelpers';
 import { updateEvent } from '../actions';
 import { useRouter } from 'next/navigation';
 
@@ -148,31 +151,27 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                 />
             )}
 
-            {/* Event Lifecycle Information */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-800 mb-4">📋 Event Lifecycle</h3>
-                <div className="space-y-2 text-sm text-blue-700">
-                    <div className="flex items-center gap-2">
-                        <span className="font-semibold text-blue-800">CREATED</span>
-                        <span className="text-blue-600">→ Event is created and configured</span>
+            {/* Show progress stepper for individual events or general guidance */}
+            {events.length === 1 ? (
+                <EventProgressStepper
+                    currentStatus={events[0].status}
+                    eventName={events[0].name}
+                    eventDate={events[0].date}
+                />
+            ) : (
+                <div className="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Event Workflow Stages</h3>
+
+                    {/* Simple Text Flow */}
+                    <div className="text-center text-lg font-mono">
+                        Setup &nbsp;&nbsp; ➡️ &nbsp;&nbsp; Collecting Inputs &nbsp;&nbsp; ➡️ &nbsp;&nbsp; Generating Schedule &nbsp;&nbsp; ➡️ &nbsp;&nbsp; Published
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="font-semibold text-blue-800">COLLECTING_AVAIL</span>
-                        <span className="text-blue-600">→ Faculty and students submit availability</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="font-semibold text-blue-800">SCHEDULING</span>
-                        <span className="text-blue-600">→ Algorithm runs to create meetings</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="font-semibold text-green-700">PUBLISHED</span>
-                        <span className="text-green-600">→ Meetings are visible to participants</span>
+                    <br />
+                    <div className="text-center text-xs text-gray-600">
+                        💡 Use smart action buttons to move between stages in any direction
                     </div>
                 </div>
-                <p className="text-xs text-blue-600 mt-3 italic">
-                    💡 Tip: Use the &quot;Edit&quot; button to change an event&apos;s status and move it through the lifecycle
-                </p>
-            </div>
+            )}
 
             {events.length === 0 ? (
                 <div>No events found or error loading events. Check server logs for details.</div>
@@ -180,11 +179,9 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                 <table className="events-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>Event Timings</th>
+                            <th>Event Details</th>
+                            <th>Date & Time</th>
                             <th>Sessions</th>
-                            <th>Slot Length</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -237,23 +234,59 @@ export default function EventsTableClient({ events }: { events: Event[] }) {
                             const slotsForEdit = slots.join(', ');
                             const sessionsDisplay = formatSessionsDisplay(event.available_slots);
 
+                            const statusDisplay = getStatusInfo(event.status);
+
                             return (
                                 <tr key={event.id}>
-                                    <td>{event.name}</td>
-                                    <td>{dateStr}</td>
-                                    <td>{formatTimeAMPM(event.start_time)} - {formatTimeAMPM(event.end_time)}</td>
-                                    <td>{sessionsDisplay}</td>
-                                    <td>{event.slot_len} min</td>
-                                    <td>{event.status}</td>
                                     <td>
-                                        <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => setEditEvent({
-                                            ...event,
-                                            date: dateForEdit,
-                                            available_slots: slotsForEdit,
-                                            min_faculty: event.min_faculty || 3,
-                                            max_faculty: event.max_faculty || 5
-                                        })}>Edit</button>
-                                        <DeleteEventButton eventId={event.id} />
+                                        <div>
+                                            <div className="font-semibold text-gray-900">{event.name}</div>
+                                            <div className="text-sm text-gray-600">{event.slot_len} min slots</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div className="font-medium text-gray-900">{dateStr}</div>
+                                            <div className="text-sm text-gray-600">
+                                                {formatTimeAMPM(event.start_time)} - {formatTimeAMPM(event.end_time)}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="text-sm text-gray-700">
+                                            {sessionsDisplay}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${statusDisplay.bgColor} ${statusDisplay.color}`}>
+                                            <span>{statusDisplay.icon}</span>
+                                            <span>{statusDisplay.label}</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <SmartActionButtons
+                                            event={event}
+                                            onEdit={(editEventData) => setEditEvent({
+                                                ...editEventData,
+                                                date: dateForEdit,
+                                                available_slots: slotsForEdit,
+                                                min_faculty: event.min_faculty || 3,
+                                                max_faculty: event.max_faculty || 5
+                                            })}
+                                            onDelete={() => {
+                                                if (confirm("Are you sure you want to delete this event?")) {
+                                                    // Use the existing delete functionality
+                                                    const deleteBtn = document.querySelector(`[data-event-id="${event.id}"]`) as HTMLButtonElement;
+                                                    if (deleteBtn) {
+                                                        deleteBtn.click();
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                        {/* Hidden delete button for functionality */}
+                                        <div style={{ display: 'none' }}>
+                                            <DeleteEventButton eventId={event.id} />
+                                        </div>
                                     </td>
                                 </tr>
                             );

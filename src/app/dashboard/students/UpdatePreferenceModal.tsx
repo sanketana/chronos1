@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getEventsForInputCollection } from "../actions";
 import { upsertPreference } from "./actions";
-import { getAvailableFacultyForEvent } from "../faculty/actions";
+import { getAllFaculty } from "../faculty/actions";
 import { getAllPreferences } from "./actions";
 import { useRef } from 'react';
 
@@ -38,10 +38,10 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
     }, [isOpen]);
 
     useEffect(() => {
-        async function fetchAvailableFaculty() {
+        async function fetchAllFaculty() {
             if (eventId) {
-                const available = await getAvailableFacultyForEvent(eventId);
-                setProfessors(available);
+                const allFaculty = await getAllFaculty();
+                setProfessors(allFaculty);
                 // Initialize professor choices array based on maxFaculty
                 setProfessorChoices(new Array(maxFaculty).fill(null));
             } else {
@@ -49,7 +49,7 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                 setProfessorChoices([]);
             }
         }
-        fetchAvailableFaculty();
+        fetchAllFaculty();
     }, [eventId, maxFaculty]);
 
     // Helper to generate slots within a range (copied from faculty modal)
@@ -248,10 +248,7 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                             <>
                                 <div className="form-group">
                                     <label className="form-label">
-                                        Select your Professor preference
-                                        <span className="text-xs text-gray-500 ml-2">
-                                            ({minFaculty} required, up to {maxFaculty} allowed)
-                                        </span>
+                                        Select Faculty
                                     </label>
                                     {Array.from({ length: maxFaculty }, (_, idx) => (
                                         <div key={idx} style={{ marginBottom: 8 }}>
@@ -263,7 +260,7 @@ export default function UpdatePreferenceModal({ isOpen, onClose, student }: Prop
                                                 value={professorChoices[idx] || ""}
                                                 onChange={e => handleProfessorChange(idx, e.target.value)}
                                                 required={idx < minFaculty}
-                                                disabled={!eventId || professors.length === 0}
+                                                disabled={!eventId}
                                             >
                                                 <option value="" disabled>Select Professor</option>
                                                 {professors

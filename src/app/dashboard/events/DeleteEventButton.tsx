@@ -22,6 +22,7 @@ export default function DeleteEventButton({ eventId }: { eventId: string }) {
             className="danger-btn"
             onClick={handleDelete}
             disabled={isPending}
+            data-event-id={eventId}
         >
             {isPending ? "Deleting..." : "Delete"}
         </button>

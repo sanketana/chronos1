@@ -4,7 +4,7 @@ import Link from 'next/link';
 import './dashboard-sidebar.css';
 
 const allSidebarItems = [
-    { label: 'Dashboard Home', href: '/dashboard', roles: ['admin', 'superadmin', 'faculty', 'student'] },
+    { label: 'Dashboard Home', href: '/dashboard', roles: ['admin', 'superadmin', 'faculty'] },
     { label: 'Events', href: '/dashboard/events', roles: ['admin', 'superadmin'] },
     { label: 'Faculty', href: '/dashboard/faculty', roles: ['admin', 'superadmin'] },
     { label: 'Attendees', href: '/dashboard/students', roles: ['admin', 'superadmin'] },
