@@ -124,8 +124,8 @@ CREATE TABLE events (
 
 After running migrations, a default superadmin user is automatically created:
 
-- **Email**: `admin@chronos.edu`
-- **Password**: `chronos2024!`
+- **Email**: `superadmin@northwestern.edu`
+- **Password**: `chronos2025!`
 - **Role**: `superadmin`
 - **Department**: `Information Technology`
 

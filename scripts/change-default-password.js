@@ -27,7 +27,7 @@ async function changeDefaultPassword() {
 
     try {
         // Get new password from user
-        const newPassword = await question('Enter new password for admin@chronos.edu: ');
+        const newPassword = await question('Enter new password for superadmin@northwestern.edu: ');
         
         if (!newPassword || newPassword.length < 8) {
             console.error('❌ Password must be at least 8 characters long');
@@ -52,17 +52,17 @@ async function changeDefaultPassword() {
 
         // Update the password
         const result = await client.query(
-            "UPDATE users SET password = $1 WHERE email = 'admin@chronos.edu' AND role = 'superadmin'",
+            "UPDATE users SET password = $1 WHERE email = 'superadmin@northwestern.edu' AND role = 'superadmin'",
             [newPassword]
         );
 
         if (result.rowCount === 0) {
-            console.error('❌ No superadmin user found with email admin@chronos.edu');
+            console.error('❌ No superadmin user found with email superadmin@northwestern.edu');
             process.exit(1);
         }
 
         console.log('✅ Password updated successfully!');
-        console.log('📧 You can now log in with: admin@chronos.edu');
+        console.log('📧 You can now log in with: superadmin@northwestern.edu');
         console.log('🔒 Remember to keep your new password secure');
 
         await client.end();

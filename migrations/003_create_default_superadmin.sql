@@ -3,8 +3,8 @@
 -- This migration ensures a default superadmin user exists for initial access
 
 -- Create default superadmin user with specific credentials
--- Email: admin@chronos.edu
--- Password: chronos2024!
+-- Email: superadmin@northwestern.edu
+-- Password: chronos2025!
 -- This user will be created only if no superadmin exists
 
 DO $$
@@ -15,16 +15,16 @@ BEGIN
         INSERT INTO users (name, email, department, role, status, password, created_at, updated_at)
         VALUES (
             'System Administrator',
-            'admin@chronos.edu',
+            'superadmin@northwestern.edu',
             'Information Technology',
             'superadmin',
             'active',
-            'chronos2024!',
+            'chronos2025!',
             NOW(),
             NOW()
         );
         
-        RAISE NOTICE 'Default superadmin user created: admin@chronos.edu';
+        RAISE NOTICE 'Default superadmin user created: superadmin@northwestern.edu';
     ELSE
         RAISE NOTICE 'Superadmin user already exists, skipping default user creation';
     END IF;

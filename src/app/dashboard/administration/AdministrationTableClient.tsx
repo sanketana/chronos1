@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AddEditAdminModal from './AddEditAdminModal';
 import BulkUploadAdminModal from './BulkUploadAdminModal';
-import { createAdmin, updateAdmin, deleteAdmin } from './actions';
+import { createAdmin, updateAdmin, deleteAdmin, resetAdminPassword } from './actions';
 
 export interface Admin {
     id: string;
@@ -24,6 +24,21 @@ export default function AdministrationTableClient({ admins }: AdministrationTabl
     const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
+    const [defaultPassword, setDefaultPassword] = useState<string>('welcome123');
+
+    useEffect(() => {
+        async function fetchDefaultPassword() {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (!res.ok) throw new Error('Not authenticated');
+                const data = await res.json();
+                setDefaultPassword(data.defaultPassword || 'welcome123');
+            } catch {
+                // Keep default value
+            }
+        }
+        fetchDefaultPassword();
+    }, []);
 
     const handleAddAdmin = async (formData: FormData) => {
         startTransition(async () => {
@@ -53,7 +68,7 @@ export default function AdministrationTableClient({ admins }: AdministrationTabl
 
     const handleDeleteAdmin = async (id: string) => {
         if (!confirm('Are you sure you want to delete this admin?')) return;
-        
+
         startTransition(async () => {
             try {
                 await deleteAdmin(id);
@@ -61,6 +76,22 @@ export default function AdministrationTableClient({ admins }: AdministrationTabl
             } catch (error) {
                 console.error('Failed to delete admin:', error);
                 alert(error instanceof Error ? error.message : 'Failed to delete admin');
+            }
+        });
+    };
+
+    const handleResetPassword = async (admin: Admin) => {
+        const confirmMessage = `Are you sure you want to reset the password for ${admin.name} (${admin.email})?\n\nThe password will be set to: "${defaultPassword}"`;
+        if (!confirm(confirmMessage)) return;
+
+        startTransition(async () => {
+            try {
+                await resetAdminPassword(admin.id);
+                alert(`Password reset successfully for ${admin.name}`);
+                router.refresh();
+            } catch (error) {
+                console.error('Failed to reset password:', error);
+                alert(error instanceof Error ? error.message : 'Failed to reset password');
             }
         });
     };
@@ -125,6 +156,14 @@ export default function AdministrationTableClient({ admins }: AdministrationTabl
                                                 disabled={isPending}
                                             >
                                                 Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleResetPassword(admin)}
+                                                className="warning-btn"
+                                                disabled={isPending}
+                                                style={{ backgroundColor: '#f59e0b', color: 'white', border: 'none', margin: '0 4px' }}
+                                            >
+                                                Reset Password
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteAdmin(admin.id)}

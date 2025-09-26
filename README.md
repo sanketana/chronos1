@@ -43,8 +43,8 @@ This application uses PostgreSQL for data storage. The database schema is automa
 
 After deployment, you can log in with the default superadmin account:
 
-- **Email**: `admin@chronos.edu`
-- **Password**: `chronos2024!`
+- **Email**: `superadmin@northwestern.edu`
+- **Password**: `chronos2025!`
 
 ⚠️ **Important**: Change these credentials immediately after your first login!
 

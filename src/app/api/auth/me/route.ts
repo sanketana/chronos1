@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
         userId: session.userId,
         email: session.email,
         role: session.role,
-        mustChangePassword: !!session.mustChangePassword
+        mustChangePassword: !!session.mustChangePassword,
+        defaultPassword: process.env.DEFAULT_USER_PASSWORD || 'welcome123'
     });
 } 

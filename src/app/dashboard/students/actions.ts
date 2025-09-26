@@ -6,14 +6,18 @@ export async function createStudent(formData: FormData) {
     const email = formData.get('email') as string;
     const department = formData.get('department') as string;
     if (!name || !email) throw new Error('Name and email are required');
+
     const client = new Client({
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
     await client.connect();
+
+    // Add default password from environment variable
+    const defaultPassword = process.env.DEFAULT_USER_PASSWORD || 'welcome123';
     await client.query(
-        'INSERT INTO users (name, email, department, role, status) VALUES ($1, $2, $3, $4, $5)',
-        [name, email, department, 'student', 'active']
+        'INSERT INTO users (name, email, department, role, status, password) VALUES ($1, $2, $3, $4, $5, $6)',
+        [name, email, department, 'student', 'active', defaultPassword]
     );
     await client.end();
 }
@@ -162,10 +166,11 @@ export async function bulkUploadStudent(records: { name: string; email: string; 
                     continue;
                 }
 
-                // Insert new student
+                // Insert new student with default password
+                const defaultPassword = process.env.DEFAULT_USER_PASSWORD || 'welcome123';
                 await client.query(
-                    'INSERT INTO users (name, email, department, role, status) VALUES ($1, $2, $3, $4, $5)',
-                    [record.name, record.email, record.department, 'student', 'active']
+                    'INSERT INTO users (name, email, department, role, status, password) VALUES ($1, $2, $3, $4, $5, $6)',
+                    [record.name, record.email, record.department, 'student', 'active', defaultPassword]
                 );
 
                 successCount++;
@@ -189,4 +194,38 @@ export async function bulkUploadStudent(records: { name: string; email: string; 
         failed: failedCount,
         errors
     };
+}
+
+export async function resetStudentPassword(id: string) {
+    if (!id) throw new Error('Student ID is required');
+
+    const client = new Client({
+        connectionString: process.env.NEON_POSTGRES_URL,
+        ssl: { rejectUnauthorized: false }
+    });
+
+    await client.connect();
+
+    try {
+        // Check if student exists
+        const studentResult = await client.query(
+            'SELECT id, name, email FROM users WHERE id = $1 AND role = $2',
+            [id, 'student']
+        );
+
+        if (studentResult.rows.length === 0) {
+            throw new Error('Student not found');
+        }
+
+        // Reset password to default
+        const defaultPassword = process.env.DEFAULT_USER_PASSWORD || 'welcome123';
+        await client.query(
+            'UPDATE users SET password = $1, updated_at = NOW() WHERE id = $2',
+            [defaultPassword, id]
+        );
+
+        return { success: true, message: 'Password reset successfully' };
+    } finally {
+        await client.end();
+    }
 } 

@@ -3,7 +3,7 @@ import React, { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AddEditFacultyModal from './AddEditFacultyModal';
 import BulkUploadFacultyModal from './BulkUploadFacultyModal';
-import { createFaculty, updateFaculty, deleteFaculty } from './actions';
+import { createFaculty, updateFaculty, deleteFaculty, resetFacultyPassword } from './actions';
 import UpdateAvailabilityModal from './UpdateAvailabilityModal';
 
 export interface Faculty {
@@ -26,6 +26,7 @@ export default function FacultyTableClient({ faculty }: { faculty: Faculty[] }) 
     const [availabilityFaculty, setAvailabilityFaculty] = useState<Faculty | null>(null);
     const [role, setRole] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const [defaultPassword, setDefaultPassword] = useState<string>('welcome123');
 
     useEffect(() => {
         async function fetchRoleAndId() {
@@ -35,6 +36,7 @@ export default function FacultyTableClient({ faculty }: { faculty: Faculty[] }) 
                 const data = await res.json();
                 setRole(data.role);
                 setUserId(data.userId || data.id || null);
+                setDefaultPassword(data.defaultPassword || 'welcome123');
             } catch {
                 setRole(null);
                 setUserId(null);
@@ -65,6 +67,21 @@ export default function FacultyTableClient({ faculty }: { faculty: Faculty[] }) 
         startTransition(() => {
             router.refresh();
         });
+    }
+
+    async function handleResetPassword(faculty: Faculty) {
+        const confirmMessage = `Are you sure you want to reset the password for ${faculty.name} (${faculty.email})?\n\nThe password will be set to: "${defaultPassword}"`;
+        if (!window.confirm(confirmMessage)) return;
+
+        try {
+            await resetFacultyPassword(faculty.id);
+            alert(`Password reset successfully for ${faculty.name}`);
+            startTransition(() => {
+                router.refresh();
+            });
+        } catch (error) {
+            alert(`Failed to reset password: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
     }
 
     async function handleCreate(formData: FormData) {
@@ -150,6 +167,9 @@ export default function FacultyTableClient({ faculty }: { faculty: Faculty[] }) 
                                                     <button className="secondary-btn" onClick={() => handleEditClick(f)}>Edit</button>
                                                     <button className="secondary-btn" onClick={() => handleUpdateAvailabilityClick(f)}>
                                                         Update Availability
+                                                    </button>
+                                                    <button className="warning-btn" onClick={() => handleResetPassword(f)} style={{ backgroundColor: '#f59e0b', color: 'white', border: 'none' }}>
+                                                        Reset Password
                                                     </button>
                                                     <button className="danger-btn" onClick={() => handleDelete(f.id)}>Delete</button>
                                                 </>

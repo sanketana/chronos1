@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Client } from 'pg';
 
 const SESSION_COOKIE = 'chronos_session';
+const DEFAULT_USER_PASSWORD = process.env.DEFAULT_USER_PASSWORD || 'welcome123';
 
 export async function POST(req: NextRequest) {
     const formData = await req.formData();
@@ -23,10 +24,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.redirect(new URL('/studentlogin?error=invalid', req.nextUrl.origin), { status: 302 });
     }
     const user = result.rows[0];
+
+    // Only allow login with the actual database password, not default password fallback
     if (user.password !== password) {
         return NextResponse.redirect(new URL('/studentlogin?error=invalid', req.nextUrl.origin), { status: 302 });
     }
-    if (user.password === 'welcome123') {
+    if (user.password === DEFAULT_USER_PASSWORD) {
         // Redirect to password reset page (to be implemented)
         return NextResponse.redirect(new URL('/studentlogin/reset', req.nextUrl.origin), { status: 302 });
     }

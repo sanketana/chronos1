@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
     const user = result.rows[0];
-    if (user.password !== password && password !== DEFAULT_USER_PASSWORD) {
+
+    // Only allow login with the actual database password, not default password fallback
+    if (user.password !== password) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
     // Set session cookie (simple, not secure for production)

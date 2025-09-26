@@ -89,8 +89,8 @@ SELECT name, email, role FROM users WHERE role = 'superadmin';
 ### 4. Default Superadmin Access
 After successful deployment, you can log in with the default superadmin credentials:
 
-- **Email**: `admin@chronos.edu`
-- **Password**: `chronos2024!`
+- **Email**: `superadmin@northwestern.edu`
+- **Password**: `chronos2025!`
 
 ⚠️ **Security Note**: Change these credentials immediately after your first login!
 

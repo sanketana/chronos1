@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import AddEditStudentModal from './AddEditStudentModal';
 import BulkUploadStudentModal from './BulkUploadStudentModal';
 import UpdatePreferenceModal from './UpdatePreferenceModal';
-import { createStudent, updateStudent, deleteStudent } from './actions';
+import { createStudent, updateStudent, deleteStudent, resetStudentPassword } from './actions';
 
 export interface Student {
     id: string;
@@ -26,6 +26,7 @@ export default function StudentsTableClient({ students }: { students: Student[] 
     const router = useRouter();
     const [role, setRole] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const [defaultPassword, setDefaultPassword] = useState<string>('welcome123');
 
     useEffect(() => {
         async function fetchRoleAndId() {
@@ -35,6 +36,7 @@ export default function StudentsTableClient({ students }: { students: Student[] 
                 const data = await res.json();
                 setRole(data.role);
                 setUserId(data.userId || data.id || null);
+                setDefaultPassword(data.defaultPassword || 'welcome123');
             } catch {
                 setRole(null);
                 setUserId(null);
@@ -70,6 +72,21 @@ export default function StudentsTableClient({ students }: { students: Student[] 
         startTransition(() => {
             router.refresh();
         });
+    }
+
+    async function handleResetPassword(student: Student) {
+        const confirmMessage = `Are you sure you want to reset the password for ${student.name} (${student.email})?\n\nThe password will be set to: "${defaultPassword}"`;
+        if (!window.confirm(confirmMessage)) return;
+
+        try {
+            await resetStudentPassword(student.id);
+            alert(`Password reset successfully for ${student.name}`);
+            startTransition(() => {
+                router.refresh();
+            });
+        } catch (error) {
+            alert(`Failed to reset password: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
     }
 
     async function handleCreate(formData: FormData) {
@@ -142,6 +159,9 @@ export default function StudentsTableClient({ students }: { students: Student[] 
                                             <>
                                                 <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => handleEditClick(s)}>Edit</button>
                                                 <button className="secondary-btn" style={{ marginRight: '0.5rem' }} onClick={() => handlePreferenceClick(s)}>Update Preferences</button>
+                                                <button className="warning-btn" style={{ marginRight: '0.5rem', backgroundColor: '#f59e0b', color: 'white', border: 'none' }} onClick={() => handleResetPassword(s)}>
+                                                    Reset Password
+                                                </button>
                                                 <button className="danger-btn" onClick={() => handleDelete(s.id)}>Delete</button>
                                             </>
                                         ) : (role === 'student' && userId === s.id) ? (

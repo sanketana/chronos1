@@ -7,13 +7,13 @@ export async function createAdmin(formData: FormData) {
     const email = formData.get('email') as string;
     const department = formData.get('department') as string;
     if (!name || !email) throw new Error('Name and email are required');
-    
+
     const client = new Client({
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
     await client.connect();
-    
+
     try {
         // Check if admin with this email already exists
         const existingAdmin = await client.query(
@@ -34,7 +34,7 @@ export async function createAdmin(formData: FormData) {
     } finally {
         await client.end();
     }
-    
+
     revalidatePath('/dashboard/administration');
 }
 
@@ -45,13 +45,13 @@ export async function updateAdmin(formData: FormData) {
     const department = formData.get('department') as string;
     const status = formData.get('status') as string;
     if (!id || !name || !email) throw new Error('ID, name, and email are required');
-    
+
     const client = new Client({
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
     await client.connect();
-    
+
     try {
         // Check if email is already taken by another admin
         const existingAdmin = await client.query(
@@ -70,25 +70,25 @@ export async function updateAdmin(formData: FormData) {
     } finally {
         await client.end();
     }
-    
+
     revalidatePath('/dashboard/administration');
 }
 
 export async function deleteAdmin(id: string) {
     if (!id) throw new Error('ID is required');
-    
+
     const client = new Client({
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
     await client.connect();
-    
+
     try {
         await client.query('DELETE FROM users WHERE id = $1 AND role = $2', [id, 'admin']);
     } finally {
         await client.end();
     }
-    
+
     revalidatePath('/dashboard/administration');
 }
 
@@ -98,7 +98,7 @@ export async function getAllAdmins() {
         ssl: { rejectUnauthorized: false }
     });
     await client.connect();
-    
+
     try {
         const result = await client.query(`
             SELECT id, name, email, department, status, created_at 
@@ -121,9 +121,9 @@ export async function bulkUploadAdmins(records: { name: string; email: string; d
         connectionString: process.env.NEON_POSTGRES_URL,
         ssl: { rejectUnauthorized: false }
     });
-    
+
     await client.connect();
-    
+
     let successCount = 0;
     let failedCount = 0;
     const errors: string[] = [];
@@ -175,4 +175,38 @@ export async function bulkUploadAdmins(records: { name: string; email: string; d
         failed: failedCount,
         errors
     };
+}
+
+export async function resetAdminPassword(id: string) {
+    if (!id) throw new Error('Admin ID is required');
+
+    const client = new Client({
+        connectionString: process.env.NEON_POSTGRES_URL,
+        ssl: { rejectUnauthorized: false }
+    });
+
+    await client.connect();
+
+    try {
+        // Check if admin exists
+        const adminResult = await client.query(
+            'SELECT id, name, email FROM users WHERE id = $1 AND role = $2',
+            [id, 'admin']
+        );
+
+        if (adminResult.rows.length === 0) {
+            throw new Error('Admin not found');
+        }
+
+        // Reset password to default
+        const defaultPassword = process.env.DEFAULT_USER_PASSWORD || 'welcome123';
+        await client.query(
+            'UPDATE users SET password = $1, updated_at = NOW() WHERE id = $2',
+            [defaultPassword, id]
+        );
+
+        return { success: true, message: 'Password reset successfully' };
+    } finally {
+        await client.end();
+    }
 } 
